@@ -178,7 +178,7 @@ class InfoPane:
         Args:
             score: New score to display
         """
-        changeText(self.scoreText, "SCORE: % 4d" % score)
+        changeText(self.scoreText, f"SCORE: {score:4d}")
 
     def setTeam(self, isBlue: bool) -> None:
         """
