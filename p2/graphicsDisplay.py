@@ -1,15 +1,32 @@
-# graphicsDisplay.py
-# ------------------
-# Licensing Information:  You are free to use or extend these projects for
-# educational purposes provided that (1) you do not distribute or publish
-# solutions, (2) you retain this notice, and (3) you provide clear
-# attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-#
-# Attribution Information: The Pacman AI projects were developed at UC Berkeley.
-# The core projects and autograders were primarily created by John DeNero
-# (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
-# Student side autograding was added by Brad Miller, Nick Hay, and
-# Pieter Abbeel (pabbeel@cs.berkeley.edu).
+"""Graphics display module for Pacman game.
+
+This module provides the graphical display functionality for the Pacman game,
+including rendering of Pacman, ghosts, walls, food pellets, and other game elements.
+Uses Tkinter for graphics output.
+
+Modified by: George Rudolph at Utah Valley University
+Date: 22 Nov 2024
+
+Updates:
+- Added comprehensive docstrings with Args/Returns sections
+- Added type hints throughout module
+- Improved code organization and readability 
+- Added constants type annotations
+- Added return type hints for all functions
+- Added parameter type hints for all functions
+- Python 3.13 compatibility verified
+
+Licensing Information:  You are free to use or extend these projects for
+educational purposes provided that (1) you do not distribute or publish
+solutions, (2) you retain this notice, and (3) you provide clear
+attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
+
+Attribution Information: The Pacman AI projects were developed at UC Berkeley.
+The core projects and autograders were primarily created by John DeNero
+(denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
+Student side autograding was added by Brad Miller, Nick Hay, and
+Pieter Abbeel (pabbeel@cs.berkeley.edu).
+"""
 
 
 from graphicsUtils import *
@@ -21,29 +38,36 @@ from game import Directions
 #  GRAPHICS DISPLAY CODE  #
 ###########################
 
-# Most code by Dan Klein and John Denero written or rewritten for cs188, UC Berkeley.
-# Some code from a Pacman implementation by LiveWires, and used / modified with permission.
+"""
+This module contains the graphics display code for the Pacman game.
+Most code by Dan Klein and John Denero written or rewritten for cs188, UC Berkeley.
+Some code from a Pacman implementation by LiveWires, and used / modified with permission.
+"""
 
-DEFAULT_GRID_SIZE = 30.0
-INFO_PANE_HEIGHT = 35
-BACKGROUND_COLOR = formatColor(0, 0, 0)
-WALL_COLOR = formatColor(0.0/255.0, 51.0/255.0, 255.0/255.0)
-INFO_PANE_COLOR = formatColor(.4, .4, 0)
-SCORE_COLOR = formatColor(.9, .9, .9)
-PACMAN_OUTLINE_WIDTH = 2
-PACMAN_CAPTURE_OUTLINE_WIDTH = 4
+# Display configuration constants
+DEFAULT_GRID_SIZE: float = 30.0  # Size of each grid square in pixels
+INFO_PANE_HEIGHT: int = 35  # Height of information pane at bottom
+BACKGROUND_COLOR: tuple[float, float, float] = formatColor(0, 0, 0)  # Black background
+WALL_COLOR: tuple[float, float, float] = formatColor(0.0/255.0, 51.0/255.0, 255.0/255.0)  # Blue walls
+INFO_PANE_COLOR: tuple[float, float, float] = formatColor(.4, .4, 0)  # Dark yellow info pane
+SCORE_COLOR: tuple[float, float, float] = formatColor(.9, .9, .9)  # Light gray score text
+PACMAN_OUTLINE_WIDTH: int = 2  # Width of Pacman outline in pixels
+PACMAN_CAPTURE_OUTLINE_WIDTH: int = 4  # Width of Pacman outline in capture mode
 
-GHOST_COLORS = []
+# Ghost colors for different ghost types
+GHOST_COLORS: list[tuple[float, float, float]] = []
 GHOST_COLORS.append(formatColor(.9, 0, 0))  # Red
-GHOST_COLORS.append(formatColor(0, .3, .9))  # Blue
+GHOST_COLORS.append(formatColor(0, .3, .9))  # Blue  
 GHOST_COLORS.append(formatColor(.98, .41, .07))  # Orange
 GHOST_COLORS.append(formatColor(.1, .75, .7))  # Green
 GHOST_COLORS.append(formatColor(1.0, 0.6, 0.0))  # Yellow
 GHOST_COLORS.append(formatColor(.4, 0.13, 0.91))  # Purple
 
-TEAM_COLORS = GHOST_COLORS[:2]
+# Team colors for capture mode (first two ghost colors)
+TEAM_COLORS: list[tuple[float, float, float]] = GHOST_COLORS[:2]
 
-GHOST_SHAPE = [
+# Coordinate points defining ghost shape polygon
+GHOST_SHAPE: list[tuple[float, float]] = [
     (0,     0.3),
     (0.25,  0.75),
     (0.5,   0.3),
@@ -56,33 +80,44 @@ GHOST_SHAPE = [
     (-0.5,  0.3),
     (-0.25, 0.75)
 ]
-GHOST_SIZE = 0.65
-SCARED_COLOR = formatColor(1, 1, 1)
+GHOST_SIZE: float = 0.65  # Scale factor for ghost size
+SCARED_COLOR: tuple[float, float, float] = formatColor(1, 1, 1)  # White color for scared ghosts
 
-GHOST_VEC_COLORS = list(map(colorToVector, GHOST_COLORS))
+# Pre-compute ghost colors as vectors for efficiency
+GHOST_VEC_COLORS: list[tuple[float, float, float]] = list(map(colorToVector, GHOST_COLORS))
 
-PACMAN_COLOR = formatColor(255.0/255.0, 255.0/255.0, 61.0/255)
-PACMAN_SCALE = 0.5
-#pacman_speed = 0.25
+# Pacman display properties
+PACMAN_COLOR: tuple[float, float, float] = formatColor(255.0/255.0, 255.0/255.0, 61.0/255)  # Yellow
+PACMAN_SCALE: float = 0.5  # Scale factor for Pacman size
 
-# Food
-FOOD_COLOR = formatColor(1, 1, 1)
-FOOD_SIZE = 0.1
+# Food display properties  
+FOOD_COLOR: tuple[float, float, float] = formatColor(1, 1, 1)  # White
+FOOD_SIZE: float = 0.1  # Scale factor for food size
 
-# Laser
-LASER_COLOR = formatColor(1, 0, 0)
-LASER_SIZE = 0.02
+# Laser display properties
+LASER_COLOR: tuple[float, float, float] = formatColor(1, 0, 0)  # Red
+LASER_SIZE: float = 0.02  # Scale factor for laser size
 
-# Capsule graphics
-CAPSULE_COLOR = formatColor(1, 1, 1)
-CAPSULE_SIZE = 0.25
+# Power capsule display properties
+CAPSULE_COLOR: tuple[float, float, float] = formatColor(1, 1, 1)  # White
+CAPSULE_SIZE: float = 0.25  # Scale factor for capsule size
 
-# Drawing walls
-WALL_RADIUS = 0.15
-
+# Wall display properties
+WALL_RADIUS: float = 0.15  # Radius of wall corners
 
 class InfoPane:
-    def __init__(self, layout, gridSize):
+    """
+    A class representing the information pane displayed at the bottom of the game window.
+    Contains score, ghost distances, and team information.
+    """
+    def __init__(self, layout: "Layout", gridSize: float) -> None:
+        """
+        Initialize the info pane.
+
+        Args:
+            layout: The game layout containing dimensions
+            gridSize: Size of each grid square in pixels
+        """
         self.gridSize = gridSize
         self.width = (layout.width) * gridSize
         self.base = (layout.height + 1) * gridSize
@@ -91,9 +126,16 @@ class InfoPane:
         self.textColor = PACMAN_COLOR
         self.drawPane()
 
-    def toScreen(self, pos, y=None):
+    def toScreen(self, pos: Union[tuple[float, float], float], y: Optional[float] = None) -> tuple[float, float]:
         """
-          Translates a point relative from the bottom left of the info pane.
+        Translates a point relative from the bottom left of the info pane to screen coordinates.
+
+        Args:
+            pos: Either an (x,y) tuple or just the x coordinate
+            y: If pos is just x coordinate, this is the y coordinate
+
+        Returns:
+            tuple[float, float]: The screen coordinates (x,y)
         """
         if y == None:
             x, y = pos
@@ -104,11 +146,18 @@ class InfoPane:
         y = self.base + y
         return x, y
 
-    def drawPane(self):
+    def drawPane(self) -> None:
+        """Initialize and draw the score display text."""
         self.scoreText = text(self.toScreen(
             0, 0), self.textColor, "SCORE:    0", "Times", self.fontSize, "bold")
 
-    def initializeGhostDistances(self, distances):
+    def initializeGhostDistances(self, distances: list[str]) -> None:
+        """
+        Initialize the ghost distance displays.
+
+        Args:
+            distances: List of distance strings to display for each ghost
+        """
         self.ghostDistanceText = []
 
         size = 20
@@ -122,17 +171,35 @@ class InfoPane:
                      GHOST_COLORS[i+1], d, "Times", size, "bold")
             self.ghostDistanceText.append(t)
 
-    def updateScore(self, score):
+    def updateScore(self, score: int) -> None:
+        """
+        Update the displayed score.
+
+        Args:
+            score: New score to display
+        """
         changeText(self.scoreText, "SCORE: % 4d" % score)
 
-    def setTeam(self, isBlue):
+    def setTeam(self, isBlue: bool) -> None:
+        """
+        Set the team display text.
+
+        Args:
+            isBlue: True if blue team, False if red team
+        """
         text = "RED TEAM"
         if isBlue:
             text = "BLUE TEAM"
         self.teamText = text(self.toScreen(
             300, 0), self.textColor, text, "Times", self.fontSize, "bold")
 
-    def updateGhostDistances(self, distances):
+    def updateGhostDistances(self, distances: list[str]) -> None:
+        """
+        Update the ghost distance displays.
+
+        Args:
+            distances: List of new distance strings to display
+        """
         if len(distances) == 0:
             return
         if 'ghostDistanceText' not in dir(self):
@@ -141,27 +208,46 @@ class InfoPane:
             for i, d in enumerate(distances):
                 changeText(self.ghostDistanceText[i], d)
 
-    def drawGhost(self):
+    def drawGhost(self) -> None:
+        """Draw ghost icon in the info pane."""
         pass
 
-    def drawPacman(self):
+    def drawPacman(self) -> None:
+        """Draw pacman icon in the info pane."""
         pass
 
-    def drawWarning(self):
+    def drawWarning(self) -> None:
+        """Draw warning icon in the info pane."""
         pass
 
-    def clearIcon(self):
+    def clearIcon(self) -> None:
+        """Clear any icon currently displayed in the info pane."""
         pass
 
-    def updateMessage(self, message):
+    def updateMessage(self, message: str) -> None:
+        """
+        Update the message displayed in the info pane.
+
+        Args:
+            message: New message to display
+        """
         pass
 
-    def clearMessage(self):
+    def clearMessage(self) -> None:
+        """Clear the message currently displayed in the info pane."""
         pass
 
 
 class PacmanGraphics:
-    def __init__(self, zoom=1.0, frameTime=0.0, capture=False):
+    def __init__(self, zoom: float = 1.0, frameTime: float = 0.0, capture: bool = False) -> None:
+        """
+        Initialize the Pacman graphics display.
+
+        Args:
+            zoom: Scale factor for the display size
+            frameTime: Time between animation frames in seconds
+            capture: Whether this is a capture game display
+        """
         self.have_window = 0
         self.currentGhostImages = {}
         self.pacmanImage = None
@@ -170,10 +256,18 @@ class PacmanGraphics:
         self.capture = capture
         self.frameTime = frameTime
 
-    def checkNullDisplay(self):
+    def checkNullDisplay(self) -> bool:
+        """Check if display is null/disabled."""
         return False
 
-    def initialize(self, state, isBlue=False):
+    def initialize(self, state, isBlue: bool = False) -> None:
+        """
+        Initialize the game display with the given state.
+
+        Args:
+            state: Initial game state to display
+            isBlue: Whether this is the blue team's perspective
+        """
         self.isBlue = isBlue
         self.startGraphics(state)
 
@@ -185,7 +279,13 @@ class PacmanGraphics:
         # Information
         self.previousState = state
 
-    def startGraphics(self, state):
+    def startGraphics(self, state) -> None:
+        """
+        Start up the graphics display for the given game state.
+
+        Args:
+            state: Game state to initialize display with
+        """
         self.layout = state.layout
         layout = self.layout
         self.width = layout.width
@@ -194,7 +294,13 @@ class PacmanGraphics:
         self.infoPane = InfoPane(layout, self.gridSize)
         self.currentState = layout
 
-    def drawDistributions(self, state):
+    def drawDistributions(self, state) -> None:
+        """
+        Draw the belief distributions for the agents.
+
+        Args:
+            state: Current game state
+        """
         walls = state.layout.walls
         dist = []
         for x in range(walls.width):
@@ -209,14 +315,26 @@ class PacmanGraphics:
                 distx.append(block)
         self.distributionImages = dist
 
-    def drawStaticObjects(self, state):
+    def drawStaticObjects(self, state) -> None:
+        """
+        Draw the static game objects (walls, food, capsules).
+
+        Args:
+            state: Current game state
+        """
         layout = self.layout
         self.drawWalls(layout.walls)
         self.food = self.drawFood(layout.food)
         self.capsules = self.drawCapsules(layout.capsules)
         refresh()
 
-    def drawAgentObjects(self, state):
+    def drawAgentObjects(self, state) -> None:
+        """
+        Draw all agent objects (Pacman and ghosts).
+
+        Args:
+            state: Current game state
+        """
         self.agentImages = []  # (agentState, image)
         for index, agent in enumerate(state.agentStates):
             if agent.isPacman:
@@ -227,9 +345,13 @@ class PacmanGraphics:
                 self.agentImages.append((agent, image))
         refresh()
 
-    def swapImages(self, agentIndex, newState):
+    def swapImages(self, agentIndex: int, newState) -> None:
         """
-          Changes an image from a ghost to a pacman or vis versa (for capture)
+        Changes an image from a ghost to a pacman or vice versa (for capture).
+
+        Args:
+            agentIndex: Index of agent to swap
+            newState: New agent state
         """
         prevState, prevImage = self.agentImages[agentIndex]
         for item in prevImage:
@@ -242,7 +364,13 @@ class PacmanGraphics:
             self.agentImages[agentIndex] = (newState, image)
         refresh()
 
-    def update(self, newState):
+    def update(self, newState) -> None:
+        """
+        Update the display for a new game state.
+
+        Args:
+            newState: New game state to display
+        """
         agentIndex = newState._agentMoved
         agentState = newState.agentStates[agentIndex]
 
@@ -263,7 +391,14 @@ class PacmanGraphics:
         if 'ghostDistances' in dir(newState):
             self.infoPane.updateGhostDistances(newState.ghostDistances)
 
-    def make_window(self, width, height):
+    def make_window(self, width: int, height: int) -> None:
+        """
+        Create the graphics window.
+
+        Args:
+            width: Width of window in grid cells
+            height: Height of window in grid cells
+        """
         grid_width = (width-1) * self.gridSize
         grid_height = (height-1) * self.gridSize
         screen_width = 2*self.gridSize + grid_width
@@ -274,7 +409,17 @@ class PacmanGraphics:
                        BACKGROUND_COLOR,
                        "CS188 Pacman")
 
-    def drawPacman(self, pacman, index):
+    def drawPacman(self, pacman, index: int) -> list:
+        """
+        Draw a Pacman agent.
+
+        Args:
+            pacman: Pacman agent state
+            index: Index of the agent
+
+        Returns:
+            List containing the Pacman graphics object
+        """
         position = self.getPosition(pacman)
         screen_point = self.to_screen(position)
         endpoints = self.getEndpoints(self.getDirection(pacman))
@@ -293,7 +438,17 @@ class PacmanGraphics:
                        endpoints=endpoints,
                        width=width)]
 
-    def getEndpoints(self, direction, position=(0, 0)):
+    def getEndpoints(self, direction: str, position: tuple[float, float] = (0, 0)) -> tuple[float, float]:
+        """
+        Get the endpoints of the Pacman mouth arc.
+
+        Args:
+            direction: Direction Pacman is facing
+            position: Position of Pacman
+
+        Returns:
+            Tuple of start and end angles for mouth arc
+        """
         x, y = position
         pos = x - int(x) + y - int(y)
         width = 30 + 80 * math.sin(math.pi * pos)
@@ -309,14 +464,30 @@ class PacmanGraphics:
             endpoints = (0+delta, 0-delta)
         return endpoints
 
-    def movePacman(self, position, direction, image):
+    def movePacman(self, position: tuple[float, float], direction: str, image: list) -> None:
+        """
+        Move the Pacman graphics to a new position.
+
+        Args:
+            position: New position
+            direction: New direction
+            image: Pacman graphics object
+        """
         screenPosition = self.to_screen(position)
         endpoints = self.getEndpoints(direction, position)
         r = PACMAN_SCALE * self.gridSize
         moveCircle(image[0], screenPosition, r, endpoints)
         refresh()
 
-    def animatePacman(self, pacman, prevPacman, image):
+    def animatePacman(self, pacman, prevPacman, image: list) -> None:
+        """
+        Animate Pacman moving between positions.
+
+        Args:
+            pacman: New Pacman state
+            prevPacman: Previous Pacman state
+            image: Pacman graphics object
+        """
         if self.frameTime < 0:
             print('Press any key to step forward, "q" to play')
             keys = wait_for_keys()
@@ -338,13 +509,33 @@ class PacmanGraphics:
                             self.getDirection(pacman), image)
         refresh()
 
-    def getGhostColor(self, ghost, ghostIndex):
+    def getGhostColor(self, ghost: 'AgentState', ghostIndex: int) -> tuple[float, float, float]:
+        """
+        Get the color for a ghost.
+
+        Args:
+            ghost: Ghost agent state
+            ghostIndex: Index of the ghost
+
+        Returns:
+            RGB color tuple
+        """
         if ghost.scaredTimer > 0:
             return SCARED_COLOR
         else:
             return GHOST_COLORS[ghostIndex]
 
-    def drawGhost(self, ghost, agentIndex):
+    def drawGhost(self, ghost: 'AgentState', agentIndex: int) -> list:
+        """
+        Draw a ghost.
+
+        Args:
+            ghost: Ghost agent state
+            agentIndex: Index of the ghost
+
+        Returns:
+            List of ghost graphics objects
+        """
         pos = self.getPosition(ghost)
         dir = self.getDirection(ghost)
         (screen_x, screen_y) = (self.to_screen(pos))
@@ -385,7 +576,15 @@ class PacmanGraphics:
 
         return ghostImageParts
 
-    def moveEyes(self, pos, dir, eyes):
+    def moveEyes(self, pos: tuple[float, float], dir: str, eyes: list) -> None:
+        """
+        Move the ghost's eyes.
+
+        Args:
+            pos: New position
+            dir: New direction
+            eyes: List of eye graphics objects
+        """
         (screen_x, screen_y) = (self.to_screen(pos))
         dx = 0
         dy = 0
@@ -406,7 +605,16 @@ class PacmanGraphics:
         moveCircle(eyes[3], (screen_x+self.gridSize*GHOST_SIZE*(0.3+dx), screen_y -
                              self.gridSize*GHOST_SIZE*(0.3-dy)), self.gridSize*GHOST_SIZE*0.08)
 
-    def moveGhost(self, ghost, ghostIndex, prevGhost, ghostImageParts):
+    def moveGhost(self, ghost: 'AgentState', ghostIndex: int, prevGhost: 'AgentState', ghostImageParts: list) -> None:
+        """
+        Move a ghost to a new position.
+
+        Args:
+            ghost: New ghost state
+            ghostIndex: Index of the ghost
+            prevGhost: Previous ghost state
+            ghostImageParts: List of ghost graphics objects
+        """
         old_x, old_y = self.to_screen(self.getPosition(prevGhost))
         new_x, new_y = self.to_screen(self.getPosition(ghost))
         delta = new_x - old_x, new_y - old_y
@@ -424,35 +632,78 @@ class PacmanGraphics:
                       self.getDirection(ghost), ghostImageParts[-4:])
         refresh()
 
-    def getPosition(self, agentState):
+    def getPosition(self, agentState: 'AgentState') -> tuple[float, float]:
+        """
+        Get the position of an agent.
+
+        Args:
+            agentState: Agent state
+
+        Returns:
+            Position tuple (x,y)
+        """
         if agentState.configuration == None:
             return (-1000, -1000)
         return agentState.getPosition()
 
-    def getDirection(self, agentState):
+    def getDirection(self, agentState: 'AgentState') -> str:
+        """
+        Get the direction of an agent.
+
+        Args:
+            agentState: Agent state
+
+        Returns:
+            Direction string
+        """
         if agentState.configuration == None:
             return Directions.STOP
         return agentState.configuration.getDirection()
 
-    def finish(self):
+    def finish(self) -> None:
+        """Clean up graphics display."""
         end_graphics()
 
-    def to_screen(self, point):
+    def to_screen(self, point: tuple[float, float]) -> tuple[float, float]:
+        """
+        Convert a game coordinate to a screen coordinate.
+
+        Args:
+            point: Game coordinate (x,y)
+
+        Returns:
+            Screen coordinate tuple
+        """
         (x, y) = point
         #y = self.height - y
         x = (x + 1)*self.gridSize
         y = (self.height - y)*self.gridSize
         return (x, y)
 
-    # Fixes some TK issue with off-center circles
-    def to_screen2(self, point):
+    def to_screen2(self, point: tuple[float, float]) -> tuple[float, float]:
+        """
+        Convert a game coordinate to a screen coordinate (alternate version).
+        Fixes some TK issue with off-center circles.
+
+        Args:
+            point: Game coordinate (x,y)
+
+        Returns:
+            Screen coordinate tuple
+        """
         (x, y) = point
         #y = self.height - y
         x = (x + 1)*self.gridSize
         y = (self.height - y)*self.gridSize
         return (x, y)
 
-    def drawWalls(self, wallMatrix):
+    def drawWalls(self, wallMatrix: 'Grid') -> None:
+        """
+        Draw the maze walls.
+
+        Args:
+            wallMatrix: Grid of wall locations
+        """
         wallColor = WALL_COLOR
         for xNum, x in enumerate(wallMatrix):
             if self.capture and (xNum * 2) < wallMatrix.width:
@@ -564,14 +815,34 @@ class PacmanGraphics:
                         line(add(screen, (self.gridSize*(-1)*WALL_RADIUS, self.gridSize*(2)*WALL_RADIUS-1)),
                              add(screen, (self.gridSize*(-1)*WALL_RADIUS, self.gridSize*(0.5))), wallColor)
 
-    def isWall(self, x, y, walls):
+    def isWall(self, x: int, y: int, walls: 'Grid') -> bool:
+        """
+        Check if there is a wall at the given position.
+
+        Args:
+            x: X coordinate
+            y: Y coordinate
+            walls: Grid of wall locations
+
+        Returns:
+            True if there is a wall, False otherwise
+        """
         if x < 0 or y < 0:
             return False
         if x >= walls.width or y >= walls.height:
             return False
         return walls[x][y]
 
-    def drawFood(self, foodMatrix):
+    def drawFood(self, foodMatrix: 'Grid') -> list[list]:
+        """
+        Draw all food dots.
+
+        Args:
+            foodMatrix: Grid of food locations
+
+        Returns:
+            2D list of food graphics objects
+        """
         foodImages = []
         color = FOOD_COLOR
         for xNum, x in enumerate(foodMatrix):
@@ -593,7 +864,16 @@ class PacmanGraphics:
                     imageRow.append(None)
         return foodImages
 
-    def drawCapsules(self, capsules):
+    def drawCapsules(self, capsules: list[tuple[int, int]]) -> dict:
+        """
+        Draw all capsules.
+
+        Args:
+            capsules: List of capsule positions
+
+        Returns:
+            Dictionary mapping positions to capsule graphics objects
+        """
         capsuleImages = {}
         for capsule in capsules:
             (screen_x, screen_y) = self.to_screen(capsule)
@@ -605,17 +885,34 @@ class PacmanGraphics:
             capsuleImages[capsule] = dot
         return capsuleImages
 
-    def removeFood(self, cell, foodImages):
+    def removeFood(self, cell: tuple[int, int], foodImages: list[list]) -> None:
+        """
+        Remove a food dot from display.
+
+        Args:
+            cell: Position of food to remove
+            foodImages: 2D list of food graphics objects
+        """
         x, y = cell
         remove_from_screen(foodImages[x][y])
 
-    def removeCapsule(self, cell, capsuleImages):
+    def removeCapsule(self, cell: tuple[int, int], capsuleImages: dict) -> None:
+        """
+        Remove a capsule from display.
+
+        Args:
+            cell: Position of capsule to remove
+            capsuleImages: Dictionary of capsule graphics objects
+        """
         x, y = cell
         remove_from_screen(capsuleImages[(x, y)])
 
-    def drawExpandedCells(self, cells):
+    def drawExpandedCells(self, cells: list[tuple[int, int]]) -> None:
         """
-        Draws an overlay of expanded grid positions for search agents
+        Draw an overlay of expanded grid positions for search agents.
+
+        Args:
+            cells: List of cell positions to highlight
         """
         n = float(len(cells))
         baseColor = [1.0, 0.0, 0.0]
@@ -664,13 +961,33 @@ class PacmanGraphics:
 
 
 class FirstPersonPacmanGraphics(PacmanGraphics):
-    def __init__(self, zoom=1.0, showGhosts=True, capture=False, frameTime=0):
+    """
+    First-person view graphics for Pacman game.
+    
+    Provides a first-person perspective of the Pacman game world, showing only what would be
+    visible from Pacman's point of view.
+    
+    Args:
+        zoom: Scale factor for the display (default 1.0)
+        showGhosts: Whether to show ghosts in the display (default True)
+        capture: Whether this is capture mode (default False) 
+        frameTime: Time between frames in seconds (default 0)
+    """
+    def __init__(self, zoom: float = 1.0, showGhosts: bool = True, capture: bool = False, frameTime: float = 0) -> None:
         PacmanGraphics.__init__(self, zoom, frameTime=frameTime)
         self.showGhosts = showGhosts
         self.capture = capture
 
-    def initialize(self, state, isBlue=False):
-
+    def initialize(self, state: 'GameState', isBlue: bool = False) -> None:
+        """
+        Initialize the first-person display.
+        
+        Sets up the initial game state and graphics for first-person view.
+        
+        Args:
+            state: Current game state
+            isBlue: Whether Pacman is on blue team (default False)
+        """
         self.isBlue = isBlue
         PacmanGraphics.startGraphics(self, state)
         # Initialize distribution images
@@ -686,7 +1003,16 @@ class FirstPersonPacmanGraphics(PacmanGraphics):
         # Information
         self.previousState = state
 
-    def lookAhead(self, config, state):
+    def lookAhead(self, config: 'Configuration', state: 'GameState') -> None:
+        """
+        Update display based on Pacman's current view direction.
+        
+        Shows only ghosts that would be visible from Pacman's current position and direction.
+        
+        Args:
+            config: Pacman's current configuration (position/direction)
+            state: Current game state
+        """
         if config.getDirection() == 'Stop':
             return
         else:
@@ -700,34 +1026,78 @@ class FirstPersonPacmanGraphics(PacmanGraphics):
                 else:
                     self.currentGhostImages[i] = None
 
-    def getGhostColor(self, ghost, ghostIndex):
+    def getGhostColor(self, ghost: 'GhostState', ghostIndex: int) -> str:
+        """
+        Get the color for a ghost.
+        
+        Args:
+            ghost: The ghost state
+            ghostIndex: Index of the ghost
+            
+        Returns:
+            Color string for the ghost
+        """
         return GHOST_COLORS[ghostIndex]
 
-    def getPosition(self, ghostState):
+    def getPosition(self, ghostState: 'GhostState') -> Tuple[float, float]:
+        """
+        Get the display position for a ghost.
+        
+        In first-person view, ghosts that shouldn't be visible return far off-screen.
+        
+        Args:
+            ghostState: State of the ghost
+            
+        Returns:
+            (x,y) position tuple, (-1000,-1000) if ghost should be hidden
+        """
         if not self.showGhosts and not ghostState.isPacman and ghostState.getPosition()[1] > 1:
             return (-1000, -1000)
         else:
             return PacmanGraphics.getPosition(self, ghostState)
 
 
-def add(x, y):
+def add(x: Tuple[float, float], y: Tuple[float, float]) -> Tuple[float, float]:
+    """
+    Add two 2D vectors.
+    
+    Args:
+        x: First vector as (x,y) tuple
+        y: Second vector as (x,y) tuple
+        
+    Returns:
+        Sum vector as (x,y) tuple
+    """
     return (x[0] + y[0], x[1] + y[1])
 
+###############################################################################
+#                         SAVING GRAPHICAL OUTPUT                               #
+# Note: to make an animated gif from this postscript output, try the command:  #
+# convert -delay 7 -loop 1 -compress lzw -layers optimize frame* out.gif       #
+# convert is part of imagemagick (freeware)                                    #
+###############################################################################
 
-# Saving graphical output
-# -----------------------
-# Note: to make an animated gif from this postscript output, try the command:
-# convert -delay 7 -loop 1 -compress lzw -layers optimize frame* out.gif
-# convert is part of imagemagick (freeware)
-
-SAVE_POSTSCRIPT = False
-POSTSCRIPT_OUTPUT_DIR = 'frames'
-FRAME_NUMBER = 0
+SAVE_POSTSCRIPT: bool = False
+POSTSCRIPT_OUTPUT_DIR: str = 'frames'
+FRAME_NUMBER: int = 0
 import os
 
 
-def saveFrame():
-    "Saves the current graphical output as a postscript file"
+def saveFrame() -> None:
+    """
+    Save the current graphical output as a postscript file.
+    
+    If SAVE_POSTSCRIPT is enabled, saves the current canvas state as a numbered
+    postscript file in the POSTSCRIPT_OUTPUT_DIR directory. Files are named
+    sequentially as frame_XXXXXXXX.ps where XXXXXXXX is the frame number.
+    
+    Creates the output directory if it doesn't exist.
+    
+    Global variables used:
+        SAVE_POSTSCRIPT: Whether to save frames
+        FRAME_NUMBER: Current frame number, incremented after each save
+        POSTSCRIPT_OUTPUT_DIR: Directory to save frames in
+    """
     global SAVE_POSTSCRIPT, FRAME_NUMBER, POSTSCRIPT_OUTPUT_DIR
     if not SAVE_POSTSCRIPT:
         return
