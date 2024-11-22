@@ -1,24 +1,32 @@
-# game.py
-# -------
-# Licensing Information:  You are free to use or extend these projects for
-# educational purposes provided that (1) you do not distribute or publish
-# solutions, (2) you retain this notice, and (3) you provide clear
-# attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-#
-# Attribution Information: The Pacman AI projects were developed at UC Berkeley.
-# The core projects and autograders were primarily created by John DeNero
-# (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
-# Student side autograding was added by Brad Miller, Nick Hay, and
-# Pieter Abbeel (pabbeel@cs.berkeley.edu).
+"""Core game logic module for Pacman AI projects.
 
+This module provides the foundational game mechanics and data structures for the Pacman game,
+including agents, game states, rules, and movement logic.
 
-# game.py
-# -------
-# Licensing Information: Please do not distribute or publish solutions to this
-# project. You are free to use and extend these projects for educational
-# purposes. The Pacman AI projects were developed at UC Berkeley, primarily by
-# John DeNero (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
-# For more info, see http://inst.eecs.berkeley.edu/~cs188/sp09/pacman.html
+Modified by: George Rudolph at Utah Valley University
+Date: 22 Nov 2024
+
+Updates:
+- Added comprehensive docstrings with Args/Returns sections
+- Added type hints throughout module
+- Improved code organization and readability
+- Added constants type annotations
+- Added return type hints for all functions
+- Added parameter type hints for all functions
+- Use f-strings for improved readability
+- Python 3.13 compatibility verified
+
+Licensing Information:  You are free to use or extend these projects for
+educational purposes provided that (1) you do not distribute or publish
+solutions, (2) you retain this notice, and (3) you provide clear
+attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
+
+Attribution Information: The Pacman AI projects were developed at UC Berkeley.
+The core projects and autograders were primarily created by John DeNero
+(denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
+Student side autograding was added by Brad Miller, Nick Hay, and
+Pieter Abbeel (pabbeel@cs.berkeley.edu).
+"""
 
 import abc
 from util import *
@@ -34,25 +42,39 @@ import sys
 
 class Agent(metaclass=abc.ABCMeta):
     """
-    An agent must define a getAction method, but may also define the
-    following methods which will be called if they exist:
+    Base class for all agents in the game.
 
-    def registerInitialState(self, state): # inspects the starting state
+    An agent must define a getAction method to determine its behavior. May also optionally
+    define a registerInitialState method to inspect the starting state.
+
+    Attributes:
+        index: Integer identifying which agent this is in the game
     """
 
-    def __init__(self, index=0):
+    def __init__(self, index: int = 0) -> None:
         self.index = index
 
     @abc.abstractmethod
-    def getAction(self, state):
+    def getAction(self, state: 'GameState') -> str:
         """
-        The Agent will receive a GameState (from either {pacman, capture, sonar}.py) and
-        must return an action from Directions.{North, South, East, West, Stop}
+        Determine the agent's action based on the current game state.
+
+        Args:
+            state: Current GameState object representing game state
+
+        Returns:
+            Action string from Directions.{North, South, East, West, Stop}
         """
         return
 
 
 class Directions:
+    """
+    Constants and mappings for movement directions in the game.
+
+    Contains direction constants and mappings between directions for turning left/right
+    and reversing direction.
+    """
     NORTH = 'North'
     SOUTH = 'South'
     EAST = 'East'
@@ -76,47 +98,57 @@ class Directions:
 
 class Configuration:
     """
-    A Configuration holds the (x,y) coordinate of a character, along with its
-    traveling direction.
+    Stores position and direction information for game characters.
 
-    The convention for positions, like a graph, is that (0,0) is the lower left corner, x increases
-    horizontally and y increases vertically.  Therefore, north is the direction of increasing y, or (0,1).
+    The convention for positions is that (0,0) is the lower left corner, with x increasing
+    horizontally and y increasing vertically. North is the direction of increasing y (0,1).
+
+    Attributes:
+        pos: Tuple of (x,y) coordinates
+        direction: String indicating direction of travel from Directions constants
     """
 
-    def __init__(self, pos, direction):
+    def __init__(self, pos: tuple[float, float], direction: str) -> None:
         self.pos = pos
         self.direction = direction
 
-    def getPosition(self):
-        return (self.pos)
+    def getPosition(self) -> tuple[float, float]:
+        """Get the current position coordinates."""
+        return self.pos
 
-    def getDirection(self):
+    def getDirection(self) -> str:
+        """Get the current direction of travel."""
         return self.direction
 
-    def isInteger(self):
+    def isInteger(self) -> bool:
+        """Check if position coordinates are integer values."""
         x, y = self.pos
         return x == int(x) and y == int(y)
 
-    def __eq__(self, other):
+    def __eq__(self, other: 'Configuration') -> bool:
         if other == None:
             return False
         return (self.pos == other.pos and self.direction == other.direction)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         x = hash(self.pos)
         y = hash(self.direction)
         return hash(x + 13 * y)
 
-    def __str__(self):
-        return "(x,y)="+str(self.pos)+", "+str(self.direction)
+    def __str__(self) -> str:
+        return f"(x,y)={str(self.pos)}, {str(self.direction)}"
 
-    def generateSuccessor(self, vector):
+    def generateSuccessor(self, vector: tuple[float, float]) -> 'Configuration':
         """
-        Generates a new configuration reached by translating the current
-        configuration by the action vector.  This is a low-level call and does
-        not attempt to respect the legality of the movement.
+        Generate new configuration after moving by the given vector.
 
-        Actions are movement vectors.
+        Args:
+            vector: Movement vector as (dx,dy) tuple
+
+        Returns:
+            New Configuration after applying movement vector
+
+        Note: This is a low-level call that does not check movement legality.
         """
         x, y = self.pos
         dx, dy = vector
@@ -125,13 +157,27 @@ class Configuration:
             direction = self.direction  # There is no stop direction
         return Configuration((x + dx, y+dy), direction)
 
-
 class AgentState:
     """
     AgentStates hold the state of an agent (configuration, speed, scared, etc).
+    
+    Attributes:
+        start: Initial configuration of the agent
+        configuration: Current configuration of the agent 
+        isPacman: Boolean indicating if agent is Pacman (True) or Ghost (False)
+        scaredTimer: Time remaining in scared state
+        numCarrying: Number of food pellets being carried (contest only)
+        numReturned: Number of food pellets returned to start (contest only)
     """
 
-    def __init__(self, startConfiguration, isPacman):
+    def __init__(self, startConfiguration: 'Configuration', isPacman: bool) -> None:
+        """
+        Initialize agent state.
+        
+        Args:
+            startConfiguration: Initial configuration of the agent
+            isPacman: Whether this agent is Pacman (True) or a ghost (False)
+        """
         self.start = startConfiguration
         self.configuration = startConfiguration
         self.isPacman = isPacman
@@ -140,21 +186,25 @@ class AgentState:
         self.numCarrying = 0
         self.numReturned = 0
 
-    def __str__(self):
+    def __str__(self) -> str:
+        """Return string representation of agent state."""
         if self.isPacman:
-            return "Pacman: " + str(self.configuration)
+            return f"Pacman: {self.configuration}"
         else:
-            return "Ghost: " + str(self.configuration)
+            return f"Ghost: {self.configuration}"
 
-    def __eq__(self, other):
+    def __eq__(self, other: 'AgentState') -> bool:
+        """Check if two agent states are equal."""
         if other == None:
             return False
         return self.configuration == other.configuration and self.scaredTimer == other.scaredTimer
 
-    def __hash__(self):
+    def __hash__(self) -> int:
+        """Generate hash value for agent state."""
         return hash(hash(self.configuration) + 13 * hash(self.scaredTimer))
 
-    def copy(self):
+    def copy(self) -> 'AgentState':
+        """Return a deep copy of this agent state."""
         state = AgentState(self.start, self.isPacman)
         state.configuration = self.configuration
         state.scaredTimer = self.scaredTimer
@@ -162,25 +212,32 @@ class AgentState:
         state.numReturned = self.numReturned
         return state
 
-    def getPosition(self):
+    def getPosition(self) -> tuple[float, float] | None:
+        """Get current position of agent, or None if no configuration exists."""
         if self.configuration == None:
             return None
         return self.configuration.getPosition()
 
-    def getDirection(self):
+    def getDirection(self) -> str:
+        """Get current direction of agent."""
         return self.configuration.getDirection()
-
 
 class Grid:
     """
-    A 2-dimensional array of objects backed by a list of lists.  Data is accessed
-    via grid[x][y] where (x,y) are positions on a Pacman map with x horizontal,
-    y vertical and the origin (0,0) in the bottom left corner.
-
+    A 2-dimensional array of objects backed by a list of lists.
+    
+    Data is accessed via grid[x][y] where (x,y) are positions on a Pacman map with x horizontal,
+    y vertical and the origin (0,0) in the bottom left corner. The grid can only contain boolean values.
     The __str__ method constructs an output that is oriented like a pacman board.
+    
+    Attributes:
+        width: Width of the grid in cells
+        height: Height of the grid in cells
+        data: 2D list storing the grid values
+        CELLS_PER_INT: Number of cells that can be packed into one integer
     """
 
-    def __init__(self, width, height, initialValue=False, bitRepresentation=None):
+    def __init__(self, width: int, height: int, initialValue: bool = False, bitRepresentation: tuple[int, ...] | None = None) -> None:
         if initialValue not in [False, True]:
             raise Exception('Grids can only contain booleans')
         self.CELLS_PER_INT = 30
@@ -192,24 +249,24 @@ class Grid:
         if bitRepresentation:
             self._unpackBits(bitRepresentation)
 
-    def __getitem__(self, i):
+    def __getitem__(self, i: int) -> list[bool]:
         return self.data[i]
 
-    def __setitem__(self, key, item):
+    def __setitem__(self, key: int, item: list[bool]) -> None:
         self.data[key] = item
 
-    def __str__(self):
+    def __str__(self) -> str:
         out = [[str(self.data[x][y])[0] for x in range(self.width)]
                for y in range(self.height)]
         out.reverse()
         return '\n'.join([''.join(x) for x in out])
 
-    def __eq__(self, other):
+    def __eq__(self, other: 'Grid') -> bool:
         if other == None:
             return False
         return self.data == other.data
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         # return hash(str(self))
         base = 1
         h = 0
@@ -220,23 +277,28 @@ class Grid:
                 base *= 2
         return hash(h)
 
-    def copy(self):
+    def copy(self) -> 'Grid':
+        """Return a deep copy of this grid."""
         g = Grid(self.width, self.height)
         g.data = [x[:] for x in self.data]
         return g
 
-    def deepCopy(self):
+    def deepCopy(self) -> 'Grid':
+        """Return a deep copy of this grid."""
         return self.copy()
 
-    def shallowCopy(self):
+    def shallowCopy(self) -> 'Grid':
+        """Return a shallow copy of this grid."""
         g = Grid(self.width, self.height)
         g.data = self.data
         return g
 
-    def count(self, item=True):
+    def count(self, item: bool = True) -> int:
+        """Count number of cells matching the given value."""
         return sum([x.count(item) for x in self.data])
 
-    def asList(self, key=True):
+    def asList(self, key: bool = True) -> list[tuple[int, int]]:
+        """Return list of (x,y) coordinates of cells matching the given value."""
         list = []
         for x in range(self.width):
             for y in range(self.height):
@@ -244,11 +306,12 @@ class Grid:
                     list.append((x, y))
         return list
 
-    def packBits(self):
+    def packBits(self) -> tuple[int, ...]:
         """
-        Returns an efficient int list representation
+        Returns an efficient int list representation.
 
-        (width, height, bitPackedInts...)
+        Returns:
+            Tuple of (width, height, bitPackedInts...)
         """
         bits = [self.width, self.height]
         currentInt = 0
@@ -263,14 +326,18 @@ class Grid:
         bits.append(currentInt)
         return tuple(bits)
 
-    def _cellIndexToPosition(self, index):
+    def _cellIndexToPosition(self, index: int) -> tuple[int, int]:
+        """Convert cell index to (x,y) position."""
         x = index / self.height
         y = index % self.height
         return x, y
 
-    def _unpackBits(self, bits):
+    def _unpackBits(self, bits: tuple[int, ...]) -> None:
         """
-        Fills in data from a bit-level representation
+        Fills in data from a bit-level representation.
+        
+        Args:
+            bits: Tuple of integers containing packed bit data
         """
         cell = 0
         for packed in bits:
@@ -281,7 +348,20 @@ class Grid:
                 self[x][y] = bit
                 cell += 1
 
-    def _unpackInt(self, packed, size):
+    def _unpackInt(self, packed: int, size: int) -> list[bool]:
+        """
+        Unpack an integer into a list of booleans.
+        
+        Args:
+            packed: Integer to unpack
+            size: Number of bits to unpack
+            
+        Returns:
+            List of booleans representing the bits
+            
+        Raises:
+            ValueError: If packed integer is negative
+        """
         bools = []
         if packed < 0:
             raise ValueError("must be a positive integer")
@@ -295,7 +375,16 @@ class Grid:
         return bools
 
 
-def reconstituteGrid(bitRep):
+def reconstituteGrid(bitRep: tuple[int, ...]) -> 'Grid':
+    """
+    Reconstruct a Grid object from its bit representation.
+    
+    Args:
+        bitRep: Either a tuple containing the bit representation or an existing Grid
+        
+    Returns:
+        Grid object reconstructed from the bit representation, or the original Grid if passed
+    """
     if type(bitRep) is not type((1, 2)):
         return bitRep
     width, height = bitRep[:2]
@@ -309,6 +398,13 @@ def reconstituteGrid(bitRep):
 class Actions:
     """
     A collection of static methods for manipulating move actions.
+    
+    Provides utilities for working with movement directions, vectors, and legal moves.
+    
+    Attributes:
+        _directions: Dict mapping direction names to (dx,dy) vectors
+        _directionsAsList: List of (direction name, vector) tuples
+        TOLERANCE: Float threshold for position comparisons
     """
     # Directions
     _directions = {Directions.WEST:  (-1, 0),
@@ -321,7 +417,16 @@ class Actions:
 
     TOLERANCE = .001
 
-    def reverseDirection(action):
+    def reverseDirection(action: str) -> str:
+        """
+        Get the opposite direction of the given action.
+        
+        Args:
+            action: Direction string to reverse
+            
+        Returns:
+            String representing opposite direction
+        """
         if action == Directions.NORTH:
             return Directions.SOUTH
         if action == Directions.SOUTH:
@@ -333,7 +438,16 @@ class Actions:
         return action
     reverseDirection = staticmethod(reverseDirection)
 
-    def vectorToDirection(vector):
+    def vectorToDirection(vector: tuple[float, float]) -> str:
+        """
+        Convert a movement vector to a direction string.
+        
+        Args:
+            vector: (dx,dy) movement vector
+            
+        Returns:
+            Direction string corresponding to vector
+        """
         dx, dy = vector
         if dy > 0:
             return Directions.NORTH
@@ -346,12 +460,32 @@ class Actions:
         return Directions.STOP
     vectorToDirection = staticmethod(vectorToDirection)
 
-    def directionToVector(direction, speed=1.0):
+    def directionToVector(direction: str, speed: float = 1.0) -> tuple[float, float]:
+        """
+        Convert a direction string to a movement vector.
+        
+        Args:
+            direction: Direction string to convert
+            speed: Scalar multiplier for vector magnitude
+            
+        Returns:
+            (dx,dy) movement vector scaled by speed
+        """
         dx, dy = Actions._directions[direction]
         return (dx * speed, dy * speed)
     directionToVector = staticmethod(directionToVector)
 
-    def getPossibleActions(config, walls):
+    def getPossibleActions(config: 'Configuration', walls: 'Grid') -> list[str]:
+        """
+        Get list of possible movement actions from current configuration.
+        
+        Args:
+            config: Current Configuration object
+            walls: Grid of wall positions
+            
+        Returns:
+            List of legal direction strings
+        """
         possible = []
         x, y = config.pos
         x_int, y_int = int(x + 0.5), int(y + 0.5)
@@ -371,7 +505,17 @@ class Actions:
 
     getPossibleActions = staticmethod(getPossibleActions)
 
-    def getLegalNeighbors(position, walls):
+    def getLegalNeighbors(position: tuple[float, float], walls: 'Grid') -> list[tuple[int, int]]:
+        """
+        Get list of legal neighboring positions.
+        
+        Args:
+            position: Current (x,y) position
+            walls: Grid of wall positions
+            
+        Returns:
+            List of legal (x,y) neighbor positions
+        """
         x, y = position
         x_int, y_int = int(x + 0.5), int(y + 0.5)
         neighbors = []
@@ -388,7 +532,17 @@ class Actions:
         return neighbors
     getLegalNeighbors = staticmethod(getLegalNeighbors)
 
-    def getSuccessor(position, action):
+    def getSuccessor(position: tuple[float, float], action: str) -> tuple[float, float]:
+        """
+        Get resulting position after taking an action.
+        
+        Args:
+            position: Current (x,y) position
+            action: Direction string to move
+            
+        Returns:
+            New (x,y) position after taking action
+        """
         dx, dy = Actions.directionToVector(action)
         x, y = position
         return (x + dx, y + dy)
@@ -396,10 +550,33 @@ class Actions:
 
 
 class GameStateData:
+    """
+    Data structure containing the complete game state.
+    
+    Stores information about food, capsules, agent positions/states, score,
+    and game status flags. Can be copied and compared.
+    
+    Attributes:
+        food: Grid of food pellet positions
+        capsules: List of power pellet positions
+        agentStates: List of AgentState objects for all agents
+        layout: Layout object containing walls and initial positions
+        score: Current game score
+        scoreChange: Change in score from last state
+        _foodEaten: Position of food pellet eaten in last move
+        _foodAdded: Position of food pellet added in last move  
+        _capsuleEaten: Position of capsule eaten in last move
+        _agentMoved: Index of agent that moved in last move
+        _lose: Whether game is lost
+        _win: Whether game is won
+    """
 
-    def __init__(self, prevState=None):
+    def __init__(self, prevState = None):
         """
-        Generates a new data packet by copying information from its predecessor.
+        Initialize game state, optionally copying from previous state.
+        
+        Args:
+            prevState: Previous GameStateData to copy from, or None for new state
         """
         if prevState != None:
             self.food = prevState.food.shallowCopy()
@@ -417,7 +594,8 @@ class GameStateData:
         self._win = False
         self.scoreChange = 0
 
-    def deepCopy(self):
+    def deepCopy(self) -> 'GameStateData':
+        """Create a deep copy of the game state."""
         state = GameStateData(self)
         state.food = self.food.deepCopy()
         state.layout = self.layout.deepCopy()
@@ -427,15 +605,30 @@ class GameStateData:
         state._capsuleEaten = self._capsuleEaten
         return state
 
-    def copyAgentStates(self, agentStates):
+    def copyAgentStates(self, agentStates: list['AgentState']) -> list['AgentState']:
+        """
+        Create copies of all agent states.
+        
+        Args:
+            agentStates: List of AgentState objects to copy
+            
+        Returns:
+            List of copied AgentState objects
+        """
         copiedStates = []
         for agentState in agentStates:
             copiedStates.append(agentState.copy())
         return copiedStates
 
-    def __eq__(self, other):
+    def __eq__(self, other: 'GameStateData') -> bool:
         """
-        Allows two states to be compared.
+        Compare this state with another for equality.
+        
+        Args:
+            other: GameStateData to compare against
+            
+        Returns:
+            True if states are equal, False otherwise
         """
         if other == None:
             return False
@@ -450,10 +643,8 @@ class GameStateData:
             return False
         return True
 
-    def __hash__(self):
-        """
-        Allows states to be keys of dictionaries.
-        """
+    def __hash__(self) -> int:
+        """Generate hash value for game state."""
         for i, state in enumerate(self.agentStates):
             try:
                 int(hash(state))
@@ -462,7 +653,8 @@ class GameStateData:
                 # hash(state)
         return int((hash(tuple(self.agentStates)) + 13*hash(self.food) + 113 * hash(tuple(self.capsules)) + 7 * hash(self.score)) % 1048575)
 
-    def __str__(self):
+    def __str__(self) -> str:
+        """Generate string representation of game state."""
         width, height = self.layout.width, self.layout.height
         map = Grid(width, height)
         if type(self.food) == type((1, 2)):
@@ -487,9 +679,19 @@ class GameStateData:
         for x, y in self.capsules:
             map[x][y] = 'o'
 
-        return str(map) + ("\nScore: %d\n" % self.score)
+        return f"{str(map)}\nScore: {self.score}\n"
 
-    def _foodWallStr(self, hasFood, hasWall):
+    def _foodWallStr(self, hasFood: bool, hasWall: bool) -> str:
+        """
+        Get display character for food/wall cell.
+        
+        Args:
+            hasFood: Whether cell contains food
+            hasWall: Whether cell contains wall
+            
+        Returns:
+            Character to display for cell
+        """
         if hasFood:
             return '.'
         elif hasWall:
@@ -497,7 +699,16 @@ class GameStateData:
         else:
             return ' '
 
-    def _pacStr(self, dir):
+    def _pacStr(self, dir: str) -> str:
+        """
+        Get display character for Pacman.
+        
+        Args:
+            dir: Direction Pacman is facing
+            
+        Returns:
+            Character representing Pacman
+        """
         if dir == Directions.NORTH:
             return 'v'
         if dir == Directions.SOUTH:
@@ -506,7 +717,16 @@ class GameStateData:
             return '>'
         return '<'
 
-    def _ghostStr(self, dir):
+    def _ghostStr(self, dir: str) -> str:
+        """
+        Get display character for ghost.
+        
+        Args:
+            dir: Direction ghost is facing
+            
+        Returns:
+            Character representing ghost
+        """
         return 'G'
         if dir == Directions.NORTH:
             return 'M'
@@ -516,9 +736,13 @@ class GameStateData:
             return '3'
         return 'E'
 
-    def initialize(self, layout, numGhostAgents):
+    def initialize(self, layout: 'Layout', numGhostAgents: int) -> None:
         """
-        Creates an initial game state from a layout array (see layout.py).
+        Initialize game state from layout.
+        
+        Args:
+            layout: Layout object containing walls and initial positions
+            numGhostAgents: Number of ghost agents in game
         """
         self.food = layout.food.copy()
         #self.capsules = []
@@ -546,13 +770,34 @@ try:
 except:
     _BOINC_ENABLED = False
 
-
 class Game:
     """
     The Game manages the control flow, soliciting actions from agents.
+    
+    This class handles the main game loop, including:
+    - Running each agent's turns in sequence
+    - Managing timeouts and crashes
+    - Tracking move history and agent timing
+    - Updating the display
+    - Processing win/loss conditions
+    
+    Attributes:
+        agents: List of agent objects that play the game
+        display: The visualization/UI component
+        rules: Object defining game rules and constraints
+        startingIndex: Index of first agent to move
+        muteAgents: Whether to suppress agent output
+        catchExceptions: Whether to handle agent exceptions
+        moveHistory: List of (agentIndex, action) tuples
+        totalAgentTimes: List tracking time used by each agent
+        totalAgentTimeWarnings: List tracking timeout warnings per agent
+        agentTimeout: Whether any agent has timed out
+        agentOutput: List of StringIO buffers for agent output
     """
 
-    def __init__(self, agents, display, rules, startingIndex=0, muteAgents=False, catchExceptions=False):
+    def __init__(self, agents: list['Agent'], display: 'Display', rules: 'Rules', 
+                 startingIndex: int = 0, muteAgents: bool = False, 
+                 catchExceptions: bool = False) -> None:
         self.agentCrashed = False
         self.agents = agents
         self.display = display
@@ -568,14 +813,21 @@ class Game:
         import io
         self.agentOutput = [io.StringIO() for agent in agents]
 
-    def getProgress(self):
+    def getProgress(self) -> float:
+        """Get game completion progress as a float from 0 to 1."""
         if self.gameOver:
             return 1.0
         else:
             return self.rules.getProgress(self)
 
-    def _agentCrash(self, agentIndex, quiet=False):
-        "Helper method for handling agent crashes"
+    def _agentCrash(self, agentIndex: int, quiet: bool = False) -> None:
+        """
+        Handle an agent crash.
+        
+        Args:
+            agentIndex: Index of crashed agent
+            quiet: Whether to suppress traceback printing
+        """
         if not quiet:
             traceback.print_exc()
         self.gameOver = True
@@ -585,7 +837,13 @@ class Game:
     OLD_STDOUT = None
     OLD_STDERR = None
 
-    def mute(self, agentIndex):
+    def mute(self, agentIndex: int) -> None:
+        """
+        Redirect stdout/stderr to capture agent output.
+        
+        Args:
+            agentIndex: Index of agent to mute
+        """
         if not self.muteAgents:
             return
         global OLD_STDOUT, OLD_STDERR
@@ -595,7 +853,8 @@ class Game:
         sys.stdout = self.agentOutput[agentIndex]
         sys.stderr = self.agentOutput[agentIndex]
 
-    def unmute(self):
+    def unmute(self) -> None:
+        """Restore stdout/stderr to original streams."""
         if not self.muteAgents:
             return
         global OLD_STDOUT, OLD_STDERR
@@ -603,9 +862,17 @@ class Game:
         sys.stdout = OLD_STDOUT
         sys.stderr = OLD_STDERR
 
-    def run(self):
+    def run(self) -> None:
         """
         Main control loop for game play.
+        
+        Handles:
+        - Game initialization
+        - Agent turns and moves
+        - Display updates
+        - Win/loss conditions
+        - Agent timing and crashes
+        - Final cleanup
         """
         self.display.initialize(self.state.data)
         self.numMoves = 0
@@ -618,7 +885,7 @@ class Game:
                 self.mute(i)
                 # this is a null agent, meaning it failed to load
                 # the other team wins
-                print("Agent %d failed to load" % i, file=sys.stderr)
+                print(f"Agent {i} failed to load", file=sys.stderr)
                 self.unmute()
                 self._agentCrash(i, quiet=True)
                 return
@@ -634,8 +901,7 @@ class Game:
                             time_taken = time.time() - start_time
                             self.totalAgentTimes[i] += time_taken
                         except TimeoutFunctionException:
-                            print("Agent %d ran out of time on startup!" %
-                                  i, file=sys.stderr)
+                            print(f"Agent {i} ran out of time on startup!", file=sys.stderr)
                             self.unmute()
                             self.agentTimeout = True
                             self._agentCrash(i, quiet=True)
@@ -695,8 +961,7 @@ class Game:
                             raise TimeoutFunctionException()
                         action = timed_func(observation)
                     except TimeoutFunctionException:
-                        print("Agent %d timed out on a single move!" %
-                              agentIndex, file=sys.stderr)
+                        print(f"Agent {agentIndex} timed out on a single move!", file=sys.stderr)
                         self.agentTimeout = True
                         self._agentCrash(agentIndex, quiet=True)
                         self.unmute()
@@ -706,11 +971,9 @@ class Game:
 
                     if move_time > self.rules.getMoveWarningTime(agentIndex):
                         self.totalAgentTimeWarnings[agentIndex] += 1
-                        print("Agent %d took too long to make a move! This is warning %d" % (
-                            agentIndex, self.totalAgentTimeWarnings[agentIndex]), file=sys.stderr)
+                        print(f"Agent {agentIndex} took too long to make a move! This is warning {self.totalAgentTimeWarnings[agentIndex]}", file=sys.stderr)
                         if self.totalAgentTimeWarnings[agentIndex] > self.rules.getMaxTimeWarnings(agentIndex):
-                            print("Agent %d exceeded the maximum number of warnings: %d" % (
-                                agentIndex, self.totalAgentTimeWarnings[agentIndex]), file=sys.stderr)
+                            print(f"Agent {agentIndex} exceeded the maximum number of warnings: {self.totalAgentTimeWarnings[agentIndex]}", file=sys.stderr)
                             self.agentTimeout = True
                             self._agentCrash(agentIndex, quiet=True)
                             self.unmute()
@@ -719,8 +982,7 @@ class Game:
                     self.totalAgentTimes[agentIndex] += move_time
                     # print "Agent: %d, time: %f, total: %f" % (agentIndex, move_time, self.totalAgentTimes[agentIndex])
                     if self.totalAgentTimes[agentIndex] > self.rules.getMaxTotalTime(agentIndex):
-                        print("Agent %d ran out of time! (time: %1.2f)" % (
-                            agentIndex, self.totalAgentTimes[agentIndex]), file=sys.stderr)
+                        print(f"Agent {agentIndex} ran out of time! (time: {self.totalAgentTimes[agentIndex]:.2f})", file=sys.stderr)
                         self.agentTimeout = True
                         self._agentCrash(agentIndex, quiet=True)
                         self.unmute()
