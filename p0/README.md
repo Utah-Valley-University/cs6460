@@ -22,7 +22,7 @@ focus on the things you need to review or learn.
 
 ## Files to Edit and Submit
 
-Fork the repository <https://github.com/GRudolph/uvu-cs-6460-p0/tree/2025> into a private repository and clone it to your local machine. Add your Instructor and Instructional Assistant as collaborators.
+Fork the repository <https://github.com/Utah-Valley-University/cs6460/> into a private repository and clone it to your local machine. Add your Instructor and Instructional Assistant as collaborators. Then create a new branch for your work with command `git checkout -b <branch-name>` or equivalent.
 
 Edit the files `addition.py`, `buyLotsOfFruit.py`, and `shopSmart.py`.
 and `shopSmart.py` during the assignment in the indicated places. Please *do not* change the other files in this repository. If you do, you will be given an E and be asked to fix them or any other changes that break autograding.
@@ -1450,5 +1450,4 @@ whether: shopSmart.shopSmart(orders2, shops) == shop2
 
 ### Submission
 
-To submit your project, commit the changes to your local repository, push them to the remote repository, then submit the link to your Github repository in the Canvas assignment for P0 Tutorial.
-Remember to add your Instructor and IA as collaborators to your repository so they can grade your work.
+To submit your project, commit the changes to your local repository, push them to your remote repository. Then submit the link to your Github repository in the Canvas P0 assignment.
