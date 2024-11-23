@@ -1,3 +1,6 @@
+"""
+Value Iteration Agent Implementation for Markov Decision Processes
+
 # valueIterationAgents.py
 # -----------------------
 # Licensing Information:  You are free to use or extend these projects for
@@ -12,18 +15,25 @@
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
 
-# valueIterationAgents.py
-# -----------------------
-# Licensing Information:  You are free to use or extend these projects for
-# educational purposes provided that (1) you do not distribute or publish
-# solutions, (2) you retain this notice, and (3) you provide clear
-# attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-#
-# Attribution Information: The Pacman AI projects were developed at UC Berkeley.
-# The core projects and autograders were primarily created by John DeNero
-# (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
-# Student side autograding was added by Brad Miller, Nick Hay, and
-# Pieter Abbeel (pabbeel@cs.berkeley.edu).
+
+This module implements a value iteration agent that can solve Markov Decision 
+Processes (MDPs) using the value iteration algorithm. The agent iteratively
+computes optimal state values and policies using the Bellman equation.
+
+Key Features:
+- Batch value updates using Bellman equation
+- Configurable discount factor and iteration count
+- Support for arbitrary MDPs conforming to the mdp.MarkovDecisionProcess interface
+
+Python Version: 3.13
+Last Modified: 23 Nov 2024
+Modified by: George Rudolph
+
+Changes:
+- Added comprehensive module docstring
+- Verified Python 3.13 compatibility
+- Improved code documentation and type hints
+"""
 
 import math
 import mdp, util
@@ -33,25 +43,27 @@ import collections
 
 class ValueIterationAgent(ValueEstimationAgent):
     """
-        * Please read learningAgents.py before reading this.*
-
-        A ValueIterationAgent takes a Markov decision process
-        (see mdp.py) on initialization and runs value iteration
-        for a given number of iterations using the supplied
-        discount factor.
+    A ValueIterationAgent takes a Markov decision process (see mdp.py) on initialization 
+    and runs value iteration for a given number of iterations using the supplied discount factor.
+    
+    The agent implements value iteration using the Bellman equation to iteratively compute
+    optimal values for each state in the MDP.
     """
-    def __init__(self, mdp, discount = 0.9, iterations = 100):
+    def __init__(self, mdp: 'mdp.MarkovDecisionProcess', discount: float = 0.9, iterations: int = 100) -> None:
         """
-          Your value iteration agent should take an mdp on
-          construction, run the indicated number of iterations
-          and then act according to the resulting policy.
+        Initialize the value iteration agent.
 
-          Some useful mdp methods you will use:
-              mdp.getStates()
-              mdp.getPossibleActions(state)
-              mdp.getTransitionStatesAndProbs(state, action)
-              mdp.getReward(state, action, nextState)
-              mdp.isTerminal(state)
+        Args:
+            mdp: The Markov Decision Process to solve
+            discount: Discount factor gamma for future rewards (default: 0.9)
+            iterations: Number of value iteration steps to perform (default: 100)
+
+        Key MDP methods used:
+            mdp.getStates(): Returns list of all states
+            mdp.getPossibleActions(state): Returns legal actions for state
+            mdp.getTransitionStatesAndProbs(state, action): Returns [(nextState, prob), ...]
+            mdp.getReward(state, action, nextState): Returns reward for transition
+            mdp.isTerminal(state): Returns True if state is terminal
         """
         self.mdp = mdp
         self.discount = discount
@@ -59,11 +71,12 @@ class ValueIterationAgent(ValueEstimationAgent):
         self.values = util.Counter() # A Counter is a dict with default 0
         self.runValueIteration()
 
-    def runValueIteration(self):
-        ''' This function implements the Bellman Update Equation of AIMA 4 17.10.
-        It uses batch update, meaning we update all state values at time k+1 using
-        time k values versus updating one value at a time and using the new values.
-        '''
+    def runValueIteration(self) -> None:
+        """
+        Implements the Bellman Update Equation (AIMA 4 17.10) using batch updates.
+        Updates all state values at time k+1 using time k values rather than
+        updating values one at a time using newly computed values.
+        """
         # Write value iteration code here
         "*** YOUR CODE HERE ***"
         Q = self.computeQValueFromValues
@@ -81,17 +94,30 @@ class ValueIterationAgent(ValueEstimationAgent):
             self.values = new_values
 
 
-    def getValue(self, state):
+    def getValue(self, state) -> float:
         """
-          Return the value of the state (computed in __init__).
+        Return the computed value for the given state.
+
+        Args:
+            state: The state to get the value for
+
+        Returns:
+            The value V(s) for the given state
         """
         return self.values[state]
 
 
-    def computeQValueFromValues(self, state, action):
+    def computeQValueFromValues(self, state, action) -> float:
         """
-          Compute the Q-value of action in state from the
-          value function stored in self.values.
+        Compute the Q-value Q(s,a) for the given state-action pair using
+        the current value function V(s).
+
+        Args:
+            state: The state to compute Q-value for
+            action: The action to compute Q-value for
+
+        Returns:
+            The Q-value for the state-action pair
         """
         "*** YOUR CODE HERE ***"
         R = self.mdp.getReward
@@ -102,12 +128,13 @@ class ValueIterationAgent(ValueEstimationAgent):
 
     def computeActionFromValues(self, state):
         """
-          The policy is the best action in the given state
-          according to the values currently stored in self.values.
+        Compute the optimal action to take in a state based on the stored value function.
+        
+        Args:
+            state: The state to compute the optimal action for
 
-          You may break ties any way you see fit.  Note that if
-          there are no legal actions, which is the case at the
-          terminal state, you should return None.
+        Returns:
+            The optimal action, or None if state is terminal or has no legal actions
         """
         "*** YOUR CODE HERE ***"
         if self.mdp.isTerminal(state):
@@ -129,32 +156,28 @@ class ValueIterationAgent(ValueEstimationAgent):
 
 class AsynchronousValueIterationAgent(ValueIterationAgent):
     """
-        * Please read learningAgents.py before reading this.*
-
-        An AsynchronousValueIterationAgent takes a Markov decision process
-        (see mdp.py) on initialization and runs cyclic value iteration
-        for a given number of iterations using the supplied
-        discount factor.
+    An AsynchronousValueIterationAgent performs cyclic value iteration, updating one state
+    at a time rather than batch updating all states.
+    
+    The agent cycles through states in order, updating each state's value using the current
+    values of other states.
     """
-    def __init__(self, mdp, discount = 0.9, iterations = 1000):
+    def __init__(self, mdp: 'mdp.MarkovDecisionProcess', discount: float = 0.9, iterations: int = 1000) -> None:
         """
-          Your cyclic value iteration agent should take an mdp on
-          construction, run the indicated number of iterations,
-          and then act according to the resulting policy. Each iteration
-          updates the value of only one state, which cycles through
-          the states list. If the chosen state is terminal, nothing
-          happens in that iteration.
+        Initialize the asynchronous value iteration agent.
 
-          Some useful mdp methods you will use:
-              mdp.getStates()
-              mdp.getPossibleActions(state)
-              mdp.getTransitionStatesAndProbs(state, action)
-              mdp.getReward(state)
-              mdp.isTerminal(state)
+        Args:
+            mdp: The Markov Decision Process to solve
+            discount: Discount factor gamma for future rewards (default: 0.9) 
+            iterations: Number of value updates to perform (default: 1000)
         """
         ValueIterationAgent.__init__(self, mdp, discount, iterations)
 
-    def runValueIteration(self):
+    def runValueIteration(self) -> None:
+        """
+        Performs asynchronous value iteration by cycling through states and
+        updating one state value at a time.
+        """
         "*** YOUR CODE HERE ***"
 
         states = self.mdp.getStates()
@@ -170,22 +193,30 @@ class AsynchronousValueIterationAgent(ValueIterationAgent):
 
 class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
     """
-        * Please read learningAgents.py before reading this.*
-
-        A PrioritizedSweepingValueIterationAgent takes a Markov decision process
-        (see mdp.py) on initialization and runs prioritized sweeping value iteration
-        for a given number of iterations using the supplied parameters.
+    A PrioritizedSweepingValueIterationAgent implements prioritized sweeping value iteration.
+    
+    This approach updates states in order of the magnitude of their Bellman error, focusing
+    computation on states where values are changing significantly.
     """
-    def __init__(self, mdp, discount = 0.9, iterations = 100, theta = 1e-5):
+    def __init__(self, mdp: 'mdp.MarkovDecisionProcess', discount: float = 0.9, iterations: int = 100, theta: float = 1e-5) -> None:
         """
-          Your prioritized sweeping value iteration agent should take an mdp on
-          construction, run the indicated number of iterations,
-          and then act according to the resulting policy.
+        Initialize prioritized sweeping value iteration agent.
+
+        Args:
+            mdp: The Markov Decision Process to solve
+            discount: Discount factor gamma for future rewards (default: 0.9)
+            iterations: Maximum number of updates to perform (default: 100)
+            theta: Minimum threshold for Bellman error to trigger update (default: 1e-5)
         """
         self.theta = theta
         ValueIterationAgent.__init__(self, mdp, discount, iterations)
 
-    def runValueIteration(self):
+    def runValueIteration(self) -> None:
+        """
+        Implements prioritized sweeping value iteration as described in the project.
+        Updates states in order of largest Bellman error, maintaining a priority queue
+        of states to update.
+        """
         "*** YOUR CODE HERE ***"
         ''' Numbers refer to steps from the project description pseudocode '''
 
