@@ -1,3 +1,35 @@
+"""
+Grid-based Markov Decision Process environment.
+
+This module implements a grid world environment that follows the MDP interface.
+The environment consists of:
+- A 2D grid where an agent can move in cardinal directions
+- States represented as (x,y) coordinates
+- Actions: north, south, east, west
+- Stochastic transitions with configurable noise
+- Rewards for reaching goals and living penalties
+- Terminal states that end episodes
+
+The grid world provides a simple testbed for reinforcement learning algorithms
+like value iteration and Q-learning. Key features include:
+- Configurable grid layouts and reward structures
+- Noisy movement dynamics
+- Visual display capabilities
+- Integration with the MDP interface
+
+Python Version: 3.13
+Last Modified: 24 Nov 2024
+Modified by: George Rudolph
+
+Changes:
+- Added comprehensive module docstring
+- Added type hints
+- Added detailed class and method descriptions
+- Added Python version compatibility note
+- Added last modified date and modifier
+- Verified Python 3.13 compatibility
+
+
 # gridworld.py
 # ------------
 # Licensing Information:  You are free to use or extend these projects for
@@ -10,7 +42,7 @@
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
-
+"""
 
 import random
 import sys
@@ -18,55 +50,65 @@ import mdp
 import environment
 import util
 import optparse
+from typing import List, Tuple, Optional, Any, Dict, Union
 
 class Gridworld(mdp.MarkovDecisionProcess):
     """
-      Gridworld
+    A grid-based world that implements the MarkovDecisionProcess interface.
+    The grid represents a 2D environment where an agent can move in four directions.
+    Some cells may contain rewards, walls, or terminal states.
     """
-    def __init__(self, grid):
+    def __init__(self, grid: Union[List[List[Any]], 'Grid']) -> None:
         # layout
-        if type(grid) == type([]): grid = makeGrid(grid)
+        if isinstance(grid, list): grid = makeGrid(grid)
         self.grid = grid
 
         # parameters
         self.livingReward = 0.0
         self.noise = 0.2
 
-    def setLivingReward(self, reward):
+    def setLivingReward(self, reward: float) -> None:
         """
-        The (negative) reward for exiting "normal" states.
-
-        Note that in the R+N text, this reward is on entering
-        a state and therefore is not clearly part of the state's
-        future rewards.
+        Sets the reward for living/moving to a non-terminal state.
+        
+        Args:
+            reward: The reward value to set. Typically negative to encourage reaching the goal.
         """
         self.livingReward = reward
 
-    def setNoise(self, noise):
+    def setNoise(self, noise: float) -> None:
         """
-        The probability of moving in an unintended direction.
+        Sets the probability of the agent moving in an unintended direction.
+        
+        Args:
+            noise: A value between 0 and 1 representing the probability of moving in an unintended direction.
         """
         self.noise = noise
 
-
-    def getPossibleActions(self, state):
+    def getPossibleActions(self, state: Tuple[int, int]) -> Tuple[str, ...]:
         """
-        Returns list of valid actions for 'state'.
+        Returns list of valid actions for the given state.
 
-        Note that you can request moves into walls and
-        that "exit" states transition to the terminal
-        state under the special action "done".
+        Args:
+            state: A tuple (x,y) representing the current position
+
+        Returns:
+            A tuple of strings representing valid actions ('north', 'south', 'east', 'west', 'exit')
+            Empty tuple if state is terminal
         """
         if state == self.grid.terminalState:
             return ()
         x,y = state
-        if type(self.grid[x][y]) == int:
+        if isinstance(self.grid[x][y], (int, float)):
             return ('exit',)
         return ('north','west','south','east')
 
-    def getStates(self):
+    def getStates(self) -> List[Union[Tuple[int, int], str]]:
         """
-        Return list of all states.
+        Returns list of all states in the grid.
+
+        Returns:
+            List containing the terminal state and all valid (x,y) grid positions
         """
         # The true terminal state.
         states = [self.grid.terminalState]
@@ -77,46 +119,69 @@ class Gridworld(mdp.MarkovDecisionProcess):
                     states.append(state)
         return states
 
-    def getReward(self, state, action, nextState):
+    def getReward(self, state: Tuple[int, int], action: str, nextState: Tuple[int, int]) -> float:
         """
         Get reward for state, action, nextState transition.
 
-        Note that the reward depends only on the state being
-        departed (as in the R+N book examples, which more or
-        less use this convention).
+        Args:
+            state: Current (x,y) position
+            action: Action taken
+            nextState: Resulting (x,y) position
+
+        Returns:
+            The reward value for this transition
         """
         if state == self.grid.terminalState:
             return 0.0
         x, y = state
         cell = self.grid[x][y]
-        if type(cell) == int or type(cell) == float:
+        if isinstance(cell, (int, float)):
             return cell
         return self.livingReward
 
-    def getStartState(self):
+    def getStartState(self) -> Tuple[int, int]:
+        """
+        Returns the starting position marked with 'S' in the grid.
+
+        Returns:
+            Tuple (x,y) of starting coordinates
+
+        Raises:
+            Exception if no start state exists
+        """
         for x in range(self.grid.width):
             for y in range(self.grid.height):
                 if self.grid[x][y] == 'S':
                     return (x, y)
         raise Exception('Grid has no start state')
 
-    def isTerminal(self, state):
+    def isTerminal(self, state: Union[Tuple[int, int], str]) -> bool:
         """
-        Only the TERMINAL_STATE state is *actually* a terminal state.
-        The other "exit" states are technically non-terminals with
-        a single action "exit" which leads to the true terminal state.
-        This convention is to make the grids line up with the examples
-        in the R+N textbook.
+        Checks if the given state is terminal.
+        Only the TERMINAL_STATE is considered truly terminal.
+        Other "exit" states lead to TERMINAL_STATE.
+
+        Args:
+            state: Position to check
+
+        Returns:
+            True if state is terminal, False otherwise
         """
         return state == self.grid.terminalState
 
-
-    def getTransitionStatesAndProbs(self, state, action):
+    def getTransitionStatesAndProbs(self, state: Tuple[int, int], action: str) -> List[Tuple[Union[Tuple[int, int], str], float]]:
         """
-        Returns list of (nextState, prob) pairs
-        representing the states reachable
-        from 'state' by taking 'action' along
-        with their transition probabilities.
+        Returns list of possible next states and their probabilities when taking an action from a state.
+
+        Args:
+            state: Current (x,y) position
+            action: Action to take
+
+        Returns:
+            List of (nextState, probability) pairs
+
+        Raises:
+            Exception for illegal actions
         """
 
         if action not in self.getPossibleActions(state):
@@ -127,7 +192,7 @@ class Gridworld(mdp.MarkovDecisionProcess):
 
         x, y = state
 
-        if type(self.grid[x][y]) == int or type(self.grid[x][y]) == float:
+        if isinstance(self.grid[x][y], (int, float)):
             termState = self.grid.terminalState
             return [(termState, 1.0)]
 
@@ -162,7 +227,7 @@ class Gridworld(mdp.MarkovDecisionProcess):
 
         return successors
 
-    def __aggregate(self, statesAndProbs):
+    def __aggregate(self, statesAndProbs: List[Tuple[Union[Tuple[int, int], str], float]]) -> List[Tuple[Union[Tuple[int, int], str], float]]:
         counter = util.Counter()
         for state, prob in statesAndProbs:
             counter[state] += prob
@@ -171,30 +236,30 @@ class Gridworld(mdp.MarkovDecisionProcess):
             newStatesAndProbs.append((state, prob))
         return newStatesAndProbs
 
-    def __isAllowed(self, y, x):
+    def __isAllowed(self, y: int, x: int) -> bool:
         if y < 0 or y >= self.grid.height: return False
         if x < 0 or x >= self.grid.width: return False
         return self.grid[x][y] != '#'
 
 class GridworldEnvironment(environment.Environment):
 
-    def __init__(self, gridWorld):
+    def __init__(self, gridWorld: Gridworld) -> None:
         self.gridWorld = gridWorld
         self.reset()
 
-    def getCurrentState(self):
+    def getCurrentState(self) -> Tuple[int, int]:
         return self.state
 
-    def getPossibleActions(self, state):
+    def getPossibleActions(self, state: Tuple[int, int]) -> Tuple[str, ...]:
         return self.gridWorld.getPossibleActions(state)
 
-    def doAction(self, action):
+    def doAction(self, action: str) -> Tuple[Tuple[int, int], float]:
         state = self.getCurrentState()
         (nextState, reward) = self.getRandomNextState(state, action)
         self.state = nextState
         return (nextState, reward)
 
-    def getRandomNextState(self, state, action, randObj=None):
+    def getRandomNextState(self, state: Tuple[int, int], action: str, randObj: Optional[random.Random] = None) -> Tuple[Tuple[int, int], float]:
         rand = -1.0
         if randObj is None:
             rand = random.random()
@@ -211,58 +276,58 @@ class GridworldEnvironment(environment.Environment):
                 return (nextState, reward)
         raise Exception('Total transition probability less than one; sample failure.')
 
-    def reset(self):
+    def reset(self) -> None:
         self.state = self.gridWorld.getStartState()
 
 class Grid:
     """
-    A 2-dimensional array of immutables backed by a list of lists.  Data is accessed
+    A 2-dimensional array of immutables backed by a list of lists. Data is accessed
     via grid[x][y] where (x,y) are cartesian coordinates with x horizontal,
     y vertical and the origin (0,0) in the bottom left corner.
 
     The __str__ method constructs an output that is oriented appropriately.
     """
-    def __init__(self, width, height, initialValue=' '):
+    def __init__(self, width: int, height: int, initialValue: Any = ' ') -> None:
         self.width = width
         self.height = height
         self.data = [[initialValue for y in range(height)] for x in range(width)]
         self.terminalState = 'TERMINAL_STATE'
 
-    def __getitem__(self, i):
+    def __getitem__(self, i: int) -> List[Any]:
         return self.data[i]
 
-    def __setitem__(self, key, item):
+    def __setitem__(self, key: int, item: List[Any]) -> None:
         self.data[key] = item
 
-    def __eq__(self, other):
+    def __eq__(self, other: Optional['Grid']) -> bool:
         if other == None: return False
         return self.data == other.data
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.data)
 
-    def copy(self):
+    def copy(self) -> 'Grid':
         g = Grid(self.width, self.height)
         g.data = [x[:] for x in self.data]
         return g
 
-    def deepCopy(self):
+    def deepCopy(self) -> 'Grid':
         return self.copy()
 
-    def shallowCopy(self):
+    def shallowCopy(self) -> 'Grid':
         g = Grid(self.width, self.height)
         g.data = self.data
         return g
 
-    def _getLegacyText(self):
+    def _getLegacyText(self) -> List[List[Any]]:
         t = [[self.data[x][y] for x in range(self.width)] for y in range(self.height)]
         t.reverse()
         return t
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self._getLegacyText())
 
-def makeGrid(gridString):
+def makeGrid(gridString: List[str]) -> Grid:
     width, height = len(gridString[0]), len(gridString)
     grid = Grid(width, height)
     for ybar, line in enumerate(gridString):
@@ -271,19 +336,19 @@ def makeGrid(gridString):
             grid[x][y] = el
     return grid
 
-def getCliffGrid():
+def getCliffGrid() -> Gridworld:
     grid = [[' ',' ',' ',' ',' '],
             ['S',' ',' ',' ',10],
             [-100,-100, -100, -100, -100]]
     return Gridworld(makeGrid(grid))
 
-def getCliffGrid2():
+def getCliffGrid2() -> Gridworld:
     grid = [[' ',' ',' ',' ',' '],
             [8,'S',' ',' ',10],
             [-100,-100, -100, -100, -100]]
     return Gridworld(grid)
 
-def getDiscountGrid():
+def getDiscountGrid() -> Gridworld:
     grid = [[' ',' ',' ',' ',' '],
             [' ','#',' ',' ',' '],
             [' ','#', 1,'#', 10],
@@ -291,19 +356,19 @@ def getDiscountGrid():
             [-10,-10, -10, -10, -10]]
     return Gridworld(grid)
 
-def getBridgeGrid():
+def getBridgeGrid() -> Gridworld:
     grid = [[ '#',-100, -100, -100, -100, -100, '#'],
             [   1, 'S',  ' ',  ' ',  ' ',  ' ',  10],
             [ '#',-100, -100, -100, -100, -100, '#']]
     return Gridworld(grid)
 
-def getBookGrid():
+def getBookGrid() -> Gridworld:
     grid = [[' ',' ',' ',+1],
             [' ','#',' ',-1],
             ['S',' ',' ',' ']]
     return Gridworld(grid)
 
-def getMazeGrid():
+def getMazeGrid() -> Gridworld:
     grid = [[' ',' ',' ',+1],
             ['#','#',' ','#'],
             [' ','#',' ',' '],
@@ -311,17 +376,23 @@ def getMazeGrid():
             ['S',' ',' ',' ']]
     return Gridworld(grid)
 
-def getExamGrid():
+def getExamGrid() -> Gridworld:
     grid = [[' ',' ',' ',+1],
             [' ','#',' ', ' '],
             ['S',' ',' ', +100]]
     return Gridworld(grid)
 
-def getUserAction(state, actionFunction):
+def getUserAction(state: Tuple[int, int], actionFunction: Any) -> str:
     """
     Get an action from the user (rather than the agent).
-
     Used for debugging and lecture demos.
+
+    Args:
+        state: Current state
+        actionFunction: Function that returns valid actions for state
+
+    Returns:
+        Action string based on user keyboard input
     """
     import graphicsUtils
     action = None
@@ -339,14 +410,14 @@ def getUserAction(state, actionFunction):
         action = actions[0]
     return action
 
-def printString(x): print(x)
+def printString(x: str) -> None: print(x)
 
-def runEpisode(agent, environment, discount, decision, display, message, pause, episode):
+def runEpisode(agent: Any, environment: GridworldEnvironment, discount: float, decision: Any, display: Any, message: Any, pause: Any, episode: int) -> float:
     returns = 0
     totalDiscount = 1.0
     environment.reset()
     if 'startEpisode' in dir(agent): agent.startEpisode()
-    message("BEGINNING EPISODE: "+str(episode)+"\n")
+    message(f"BEGINNING EPISODE: {episode}\n")
     while True:
 
         # DISPLAY CURRENT STATE
@@ -357,7 +428,7 @@ def runEpisode(agent, environment, discount, decision, display, message, pause, 
         # END IF IN A TERMINAL STATE
         actions = environment.getPossibleActions(state)
         if len(actions) == 0:
-            message("EPISODE "+str(episode)+" COMPLETE: RETURN WAS "+str(returns)+"\n")
+            message(f"EPISODE {episode} COMPLETE: RETURN WAS {returns}\n")
             return returns
 
         # GET ACTION (USUALLY FROM AGENT)
@@ -367,10 +438,7 @@ def runEpisode(agent, environment, discount, decision, display, message, pause, 
 
         # EXECUTE ACTION
         nextState, reward = environment.doAction(action)
-        message("Started in state: "+str(state)+
-                "\nTook action: "+str(action)+
-                "\nEnded in state: "+str(nextState)+
-                "\nGot reward: "+str(reward)+"\n")
+        message(f"Started in state: {state}\nTook action: {action}\nEnded in state: {nextState}\nGot reward: {reward}\n")
         # UPDATE LEARNER
         if 'observeTransition' in dir(agent):
             agent.observeTransition(state, action, nextState, reward)
@@ -381,7 +449,7 @@ def runEpisode(agent, environment, discount, decision, display, message, pause, 
     if 'stopEpisode' in dir(agent):
         agent.stopEpisode()
 
-def parseOptions():
+def parseOptions() -> optparse.Values:
     optParser = optparse.OptionParser()
     optParser.add_option('-d', '--discount',action='store',
                          type='float',dest='discount',default=0.9,
@@ -531,12 +599,12 @@ if __name__ == '__main__':
             if opts.valueSteps:
                 for i in range(opts.iters):
                     tempAgent = valueIterationAgents.ValueIterationAgent(mdp, opts.discount, i)
-                    display.displayValues(tempAgent, message = "VALUES AFTER "+str(i)+" ITERATIONS")
+                    display.displayValues(tempAgent, message = f"VALUES AFTER {i} ITERATIONS")
                     display.pause()
 
-            display.displayValues(a, message = "VALUES AFTER "+str(opts.iters)+" ITERATIONS")
+            display.displayValues(a, message = f"VALUES AFTER {opts.iters} ITERATIONS")
             display.pause()
-            display.displayQValues(a, message = "Q-VALUES AFTER "+str(opts.iters)+" ITERATIONS")
+            display.displayQValues(a, message = f"Q-VALUES AFTER {opts.iters} ITERATIONS")
             display.pause()
     except KeyboardInterrupt:
         sys.exit(0)
@@ -578,16 +646,16 @@ if __name__ == '__main__':
         returns += runEpisode(a, env, opts.discount, decisionCallback, displayCallback, messageCallback, pauseCallback, episode)
     if opts.episodes > 0:
         print()
-        print("AVERAGE RETURNS FROM START STATE: "+str((returns+0.0) / opts.episodes))
+        print(f"AVERAGE RETURNS FROM START STATE: {(returns+0.0) / opts.episodes}")
         print()
         print()
 
     # DISPLAY POST-LEARNING VALUES / Q-VALUES
     if opts.agent == 'q' and not opts.manual:
         try:
-            display.displayQValues(a, message = "Q-VALUES AFTER "+str(opts.episodes)+" EPISODES")
+            display.displayQValues(a, message = f"Q-VALUES AFTER {opts.episodes} EPISODES")
             display.pause()
-            display.displayValues(a, message = "VALUES AFTER "+str(opts.episodes)+" EPISODES")
+            display.displayValues(a, message = f"VALUES AFTER {opts.episodes} EPISODES")
             display.pause()
         except KeyboardInterrupt:
             sys.exit(0)
