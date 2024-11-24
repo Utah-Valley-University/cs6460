@@ -1,3 +1,36 @@
+
+
+"""
+Text-based display for Gridworld Markov Decision Process environments.
+
+This module provides classes and functions for displaying Gridworld MDPs and their
+solutions in a text-based format. It visualizes key MDP components including:
+
+- State values (V(s)) displayed as numbers in grid cells
+- Optimal policies (π(s)) shown as directional arrows 
+- Q-values (Q(s,a)) displayed in quarters of each cell
+- Current agent state highlighted with special markers
+- Grid layout with walls and terminal states
+
+The display uses ASCII characters and table formatting to create a clear
+visualization of the MDP state space and solution components.
+
+Key Features:
+- Configurable display of values, policies and Q-values
+- Support for highlighting current state and start state
+- Automatic table formatting and alignment
+- Clear visualization of walls and terminal states
+
+Python Version: 3.13
+Last Modified: 23 Nov 2024
+Modified by: George Rudolph
+
+Changes:
+- Added comprehensive module docstring
+- Verified Python 3.13 compatibility 
+- Improved code documentation
+- Added type hints
+
 # textGridworldDisplay.py
 # -----------------------
 # Licensing Information:  You are free to use or extend these projects for
@@ -10,24 +43,47 @@
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
-
+"""
 
 import util
 from functools import reduce
+from typing import Dict, List, Optional, Tuple, Any, Union
 
 class TextGridworldDisplay:
+    """
+    A class for displaying Gridworld MDPs and agent information in text format.
+    
+    Displays state values, policies, and Q-values in a grid layout using ASCII characters.
+    Can highlight the current state and show directional policies.
+    """
 
-    def __init__(self, gridworld):
+    def __init__(self, gridworld: 'gridworld.Gridworld') -> None:
+        """
+        Initialize the display with a Gridworld environment.
+        
+        Args:
+            gridworld: The Gridworld environment to display
+        """
         self.gridworld = gridworld
 
-    def start(self):
+    def start(self) -> None:
+        """Initialize the display. Currently a no-op."""
         pass
 
-    def pause(self):
+    def pause(self) -> None:
+        """Pause the display. Currently a no-op."""
         pass
 
-    def displayValues(self, agent, currentState = None, message = None):
-        if message != None:
+    def displayValues(self, agent: Any, currentState: Optional[Tuple[int, int]] = None, message: Optional[str] = None) -> None:
+        """
+        Display the agent's value function and policy.
+        
+        Args:
+            agent: The agent whose values/policy to display
+            currentState: The current state to highlight (optional)
+            message: A message to display above the grid (optional)
+        """
+        if message is not None:
             print(message)
         values = util.Counter()
         policy = {}
@@ -37,12 +93,28 @@ class TextGridworldDisplay:
             policy[state] = agent.getPolicy(state)
         prettyPrintValues(self.gridworld, values, policy, currentState)
 
-    def displayNullValues(self, agent, currentState = None, message = None):
-        if message != None: print(message)
+    def displayNullValues(self, agent: Any, currentState: Optional[Tuple[int, int]] = None, message: Optional[str] = None) -> None:
+        """
+        Display the gridworld with no values, just the grid layout.
+        
+        Args:
+            agent: The agent (unused)
+            currentState: The current state to highlight (optional)
+            message: A message to display above the grid (optional)
+        """
+        if message is not None: print(message)
         prettyPrintNullValues(self.gridworld, currentState)
 
-    def displayQValues(self, agent, currentState = None, message = None):
-        if message != None: print(message)
+    def displayQValues(self, agent: Any, currentState: Optional[Tuple[int, int]] = None, message: Optional[str] = None) -> None:
+        """
+        Display the agent's Q-values.
+        
+        Args:
+            agent: The agent whose Q-values to display
+            currentState: The current state to highlight (optional)
+            message: A message to display above the grid (optional)
+        """
+        if message is not None: print(message)
         qValues = util.Counter()
         states = self.gridworld.getStates()
         for state in states:
@@ -51,7 +123,16 @@ class TextGridworldDisplay:
         prettyPrintQValues(self.gridworld, qValues, currentState)
 
 
-def prettyPrintValues(gridWorld, values, policy=None, currentState = None):
+def prettyPrintValues(gridWorld: 'gridworld.Gridworld', values: Dict, policy: Optional[Dict] = None, currentState: Optional[Tuple[int, int]] = None) -> None:
+    """
+    Print a visualization of the values and policy in a grid layout.
+    
+    Args:
+        gridWorld: The Gridworld environment
+        values: Dictionary mapping states to values
+        policy: Dictionary mapping states to actions (optional)
+        currentState: The current state to highlight (optional)
+    """
     grid = gridWorld.grid
     maxLen = 11
     newRows = []
@@ -68,12 +149,12 @@ def prettyPrintValues(gridWorld, values, policy=None, currentState = None):
                 action = 'exit'
             valString = None
             if action == 'exit':
-                valString = border('%.2f' % value)
+                valString = border(f'{value:.2f}')
             else:
-                valString = '\n\n%.2f\n\n' % value
+                valString = f'\n\n{value:.2f}\n\n'
                 valString += ' '*maxLen
             if grid[x][y] == 'S':
-                valString = '\n\nS: %.2f\n\n'  % value
+                valString = f'\n\nS: {value:.2f}\n\n'
                 valString += ' '*maxLen
             if grid[x][y] == '#':
                 valString = '\n#####\n#####\n#####\n'
@@ -99,7 +180,7 @@ def prettyPrintValues(gridWorld, values, policy=None, currentState = None):
         newRows.append(newRow)
     numCols = grid.width
     for rowNum, row in enumerate(newRows):
-        row.insert(0,"\n\n"+str(rowNum))
+        row.insert(0,f"\n\n{rowNum}")
     newRows.reverse()
     colLabels = [str(colNum) for colNum in range(numCols)]
     colLabels.insert(0,' ')
@@ -107,7 +188,14 @@ def prettyPrintValues(gridWorld, values, policy=None, currentState = None):
     print(indent(finalRows,separateRows=True,delim='|', prefix='|',postfix='|', justify='center',hasHeader=True))
 
 
-def prettyPrintNullValues(gridWorld, currentState = None):
+def prettyPrintNullValues(gridWorld: 'gridworld.Gridworld', currentState: Optional[Tuple[int, int]] = None) -> None:
+    """
+    Print a visualization of just the grid layout with no values.
+    
+    Args:
+        gridWorld: The Gridworld environment
+        currentState: The current state to highlight (optional)
+    """
     grid = gridWorld.grid
     maxLen = 11
     newRows = []
@@ -141,7 +229,7 @@ def prettyPrintNullValues(gridWorld, currentState = None):
                 valString = '\n#####\n#####\n#####\n'
                 valString += ' '*maxLen
             elif type(grid[x][y]) == float or type(grid[x][y]) == int:
-                valString = border('%.2f' % float(grid[x][y]))
+                valString = border(f'{float(grid[x][y]):.2f}')
             else: valString = border('  ')
             pieces = [valString]
 
@@ -167,14 +255,22 @@ def prettyPrintNullValues(gridWorld, currentState = None):
         newRows.append(newRow)
     numCols = grid.width
     for rowNum, row in enumerate(newRows):
-        row.insert(0,"\n\n"+str(rowNum))
+        row.insert(0,f"\n\n{rowNum}")
     newRows.reverse()
     colLabels = [str(colNum) for colNum in range(numCols)]
     colLabels.insert(0,' ')
     finalRows = [colLabels] + newRows
     print(indent(finalRows,separateRows=True,delim='|', prefix='|',postfix='|', justify='center',hasHeader=True))
 
-def prettyPrintQValues(gridWorld, qValues, currentState=None):
+def prettyPrintQValues(gridWorld: 'gridworld.Gridworld', qValues: Dict, currentState: Optional[Tuple[int, int]] = None) -> None:
+    """
+    Print a visualization of Q-values in a grid layout.
+    
+    Args:
+        gridWorld: The Gridworld environment
+        qValues: Dictionary mapping (state,action) pairs to Q-values
+        currentState: The current state to highlight (optional)
+    """
     grid = gridWorld.grid
     maxLen = 11
     newRows = []
@@ -189,7 +285,7 @@ def prettyPrintQValues(gridWorld, qValues, currentState=None):
             bestActions = [action for action in actions if qValues[(state, action)] == bestQ]
 
             # display cell
-            qStrings = dict([(action, "%.2f" % qValues[(state, action)]) for action in actions])
+            qStrings = dict([(action, f"{qValues[(state, action)]:.2f}") for action in actions])
             northString = ('north' in qStrings and qStrings['north']) or ' '
             southString = ('south' in qStrings and qStrings['south']) or ' '
             eastString = ('east' in qStrings and qStrings['east']) or ' '
@@ -237,7 +333,7 @@ def prettyPrintQValues(gridWorld, qValues, currentState=None):
         newRows.append(newRow)
     numCols = grid.width
     for rowNum, row in enumerate(newRows):
-        row.insert(0,"\n\n\n"+str(rowNum))
+        row.insert(0,f"\n\n\n{rowNum}")
     newRows.reverse()
     colLabels = [str(colNum) for colNum in range(numCols)]
     colLabels.insert(0,' ')
@@ -245,9 +341,18 @@ def prettyPrintQValues(gridWorld, qValues, currentState=None):
 
     print(indent(finalRows,separateRows=True,delim='|',prefix='|',postfix='|', justify='center',hasHeader=True))
 
-def border(text):
+def border(text: str) -> str:
+    """
+    Add a border around text using ASCII characters.
+    
+    Args:
+        text: The text to border
+        
+    Returns:
+        The text with an ASCII border around it
+    """
     length = len(text)
-    pieces = ['-' * (length+2), '|'+' ' * (length+2)+'|', ' | '+text+' | ', '|'+' ' * (length+2)+'|','-' * (length+2)]
+    pieces = ['-' * (length+2), '|'+' ' * (length+2)+'|', f' | {text} | ', '|'+' ' * (length+2)+'|','-' * (length+2)]
     return '\n'.join(pieces)
 
 # INDENTING CODE
@@ -257,22 +362,25 @@ def border(text):
 
 import io,operator
 
-def indent(rows, hasHeader=False, headerChar='-', delim=' | ', justify='left',
-           separateRows=False, prefix='', postfix='', wrapfunc=lambda x:x):
-    """Indents a table by column.
-       - rows: A sequence of sequences of items, one sequence per row.
-       - hasHeader: True if the first row consists of the columns' names.
-       - headerChar: Character to be used for the row separator line
-         (if hasHeader==True or separateRows==True).
-       - delim: The column delimiter.
-       - justify: Determines how are data justified in their column.
-         Valid values are 'left','right' and 'center'.
-       - separateRows: True if rows are to be separated by a line
-         of 'headerChar's.
-       - prefix: A string prepended to each printed row.
-       - postfix: A string appended to each printed row.
-       - wrapfunc: A function f(text) for wrapping text; each element in
-         the table is first wrapped by this function."""
+def indent(rows: List[List[str]], hasHeader: bool = False, headerChar: str = '-', delim: str = ' | ', justify: str = 'left',
+           separateRows: bool = False, prefix: str = '', postfix: str = '', wrapfunc: Any = lambda x:x) -> str:
+    """
+    Indents a table by column.
+    
+    Args:
+        rows: A sequence of sequences of items, one sequence per row
+        hasHeader: True if the first row consists of column names
+        headerChar: Character for row separator line
+        delim: The column delimiter
+        justify: How to justify data ('left','right','center')
+        separateRows: True to separate rows with headerChar line
+        prefix: String prepended to each printed row
+        postfix: String appended to each printed row
+        wrapfunc: Function f(text) for wrapping text
+        
+    Returns:
+        The formatted table as a string
+    """
     # closure for breaking logical rows to physical, using wrapfunc
     def rowWrapper(row):
         newRows = [wrapfunc(item).split('\n') for item in row]
@@ -298,9 +406,18 @@ def indent(rows, hasHeader=False, headerChar='-', delim=' | ', justify='left',
     return output.getvalue()
 
 import math
-def wrap_always(text, width):
-    """A simple word-wrap function that wraps text on exactly width characters.
-       It doesn't split the text in words."""
+def wrap_always(text: str, width: int) -> str:
+    """
+    A simple word-wrap function that wraps text on exactly width characters.
+    Does not split text on word boundaries.
+    
+    Args:
+        text: The text to wrap
+        width: The width to wrap at
+        
+    Returns:
+        The wrapped text
+    """
     return '\n'.join([ text[width*i:width*(i+1)] \
                        for i in range(int(math.ceil(1.*len(text)/width))) ])
 
