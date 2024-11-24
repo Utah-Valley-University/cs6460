@@ -77,8 +77,6 @@ class QLearningAgent(ReinforcementAgent):
 
         "*** YOUR CODE HERE ***"
 
-        self.values = util.Counter()
-
 
     def getQValue(self, state: Any, action: Any) -> float:
         """
@@ -92,9 +90,7 @@ class QLearningAgent(ReinforcementAgent):
             float: Q-value for the state-action pair, 0.0 if never seen
         """
         "*** YOUR CODE HERE ***"
-
-        return self.values[state, action]
-
+        util.raiseNotDefined()
 
     def computeValueFromQValues(self, state: Any) -> float:
         """
@@ -108,9 +104,7 @@ class QLearningAgent(ReinforcementAgent):
         """
         "*** YOUR CODE HERE ***"
 
-        qvalues = [self.getQValue(state, action) for action in self.getLegalActions(state)]
-        return max(qvalues, default=0.0)
-
+        util.raiseNotDefined()
 
     def computeActionFromQValues(self, state: Any) -> Any:
         """
@@ -124,8 +118,7 @@ class QLearningAgent(ReinforcementAgent):
         """
         "*** YOUR CODE HERE ***"
 
-        actions = self.getLegalActions(state)
-        return max(actions, default=None, key=lambda action: self.getQValue(state, action))
+        util.raiseNotDefined()
 
 
     def getAction(self, state: Any) -> Any:
@@ -146,10 +139,7 @@ class QLearningAgent(ReinforcementAgent):
         action = None
         "*** YOUR CODE HERE ***"
 
-        if util.flipCoin(self.epsilon):
-           return random.choice(actions)
-        
-        return self.computeActionFromQValues(state)
+        util.raiseNotDefined()
 
     def update(self, state: Any, action: Any, s_prime: Any, reward: float) -> None:
         """
@@ -165,14 +155,7 @@ class QLearningAgent(ReinforcementAgent):
             reward: Reward received
         """
         "*** YOUR CODE HERE ***"
-        alpha = self.alpha
-        gamma = self.discount
-        Q = self.getQValue
-        V = self.getValue
-        
-        new_value = (1 - alpha) * Q(state, action) + alpha * (reward + gamma * V(s_prime))
-        self.values[state, action] = new_value
-
+        util.raiseNotDefined()
 
     def getPolicy(self, state: Any) -> Any:
         return self.computeActionFromQValues(state)
@@ -245,8 +228,7 @@ class ApproximateQAgent(PacmanQAgent):
             float: Approximated Q-value
         """
         "*** YOUR CODE HERE ***"
-        print(f"approx:\n{self.getWeights() * self.featExtractor.getFeatures(state, action)}")
-        return self.getWeights() * self.featExtractor.getFeatures(state, action)
+        util.raiseNotDefined()
 
     def update(self, state: Any, action: Any, nextState: Any, reward: float) -> None:
         """
@@ -260,15 +242,7 @@ class ApproximateQAgent(PacmanQAgent):
         """
         "*** YOUR CODE HERE ***"
 
-        def mulAll(counter: util.Counter, mul: float) -> None:
-            mul = float(mul)
-            for key in counter.keys():
-                counter[key] *= mul
-
-        diff = reward + self.discount * self.getValue(nextState) - self.getQValue(state, action)
-        features = self.featExtractor.getFeatures(state, action)
-        mulAll(features, (self.alpha * diff))
-        self.weights += features
+        util.raiseNotDefined()
 
     def final(self, state: Any) -> None:
         """

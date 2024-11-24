@@ -79,19 +79,7 @@ class ValueIterationAgent(ValueEstimationAgent):
         """
         # Write value iteration code here
         "*** YOUR CODE HERE ***"
-        Q = self.computeQValueFromValues
-        A = self.mdp.getPossibleActions
-        S = self.mdp.getStates
-        
-        for _ in range(self.iterations):
-            new_values = util.Counter()
-            for state in S():
-                if self.mdp.isTerminal(state):
-                    new_values[state] = 0
-                else:
-                    U = max([Q(state,a) for a in A(state)])
-                    new_values[state] = U
-            self.values = new_values
+    
 
 
     def getValue(self, state) -> float:
@@ -120,11 +108,7 @@ class ValueIterationAgent(ValueEstimationAgent):
             The Q-value for the state-action pair
         """
         "*** YOUR CODE HERE ***"
-        R = self.mdp.getReward
-        P = self.mdp.getTransitionStatesAndProbs
-
-        q_value = sum([probability * (R(state, action,None) + self.discount * self.values[s_prime]) for s_prime, probability in P(state, action)])
-        return q_value
+        util.raiseNotDefined()
 
     def computeActionFromValues(self, state):
         """
@@ -137,13 +121,7 @@ class ValueIterationAgent(ValueEstimationAgent):
             The optimal action, or None if state is terminal or has no legal actions
         """
         "*** YOUR CODE HERE ***"
-        if self.mdp.isTerminal(state):
-            return None
-
-        actions = self.mdp.getPossibleActions(state)
-        q_value, max_action = max([(self.computeQValueFromValues(state, action), action) for action in actions])
-        return max_action
-
+        util.raiseNotDefined()
     def getPolicy(self, state):
         return self.computeActionFromValues(state)
 
@@ -180,23 +158,18 @@ class AsynchronousValueIterationAgent(ValueIterationAgent):
         """
         "*** YOUR CODE HERE ***"
 
-        states = self.mdp.getStates()
-
-        for iteration in range(self.iterations):
-            state  = states[iteration % len(states)]
-            if self.mdp.isTerminal(state):
-                continue
-            actions = self.mdp.getPossibleActions(state)
-            q_value = max([self.getQValue(state,action) for action in actions])
-            self.values[state] = q_value
-
 
 class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
     """
     A PrioritizedSweepingValueIterationAgent implements prioritized sweeping value iteration.
+
+        * Please read learningAgents.py before reading this.*
+
+        A PrioritizedSweepingValueIterationAgent takes a Markov decision process
+        (see mdp.py) on initialization and runs prioritized sweeping value iteration
+        for a given number of iterations using the supplied parameters.
     
-    This approach updates states in order of the magnitude of their Bellman error, focusing
-    computation on states where values are changing significantly.
+    This approach updates states in order of the magnitude of their Bellman error, focusing computation on states where values are changing significantly.
     """
     def __init__(self, mdp: 'mdp.MarkovDecisionProcess', discount: float = 0.9, iterations: int = 100, theta: float = 1e-5) -> None:
         """
@@ -218,54 +191,4 @@ class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
         of states to update.
         """
         "*** YOUR CODE HERE ***"
-        ''' Numbers refer to steps from the project description pseudocode '''
-
-        S = self.mdp.getStates
-        A = self.mdp.getPossibleActions
-        P = self.mdp.getTransitionStatesAndProbs
-        Q = self.computeQValueFromValues
-        G = self.mdp.isTerminal
         
-        #2 priority queue
-        p_queue = util.PriorityQueue()
-
-        #1 find all predecessors
-        predecessors = {}
-        for state in S():
-            if not G(state):
-                for action in A(state):
-                    for s_prime, probability in P(state, action):
-                        '''
-                        if s_prime in predecessors:
-                            predecessors[s_prime].add(state)
-                        else:
-                            predecessors[s_prime] = {state}
-                        '''
-                        states = predecessors.get(s_prime, set())
-                        states.add(state)
-                        predecessors[s_prime] = states
-                        
-        #3 compute diffs for non-terminal states                
-        for state in S():
-            if not G(state):
-                diff = abs(self.values[state] - max([Q(state, action) for action in A(state)]))
-                p_queue.update(state, -diff)
-
-        #4 iterations
-        for iteration in range(self.iterations):
-            #4a
-            if p_queue.isEmpty():
-                break
-            #4b
-            state = p_queue.pop()
-            #4c
-            if not G(state):
-                self.values[state] = max([Q(state, action) for action in A(state)])
-            #4d
-            for p in predecessors[state]:
-                #4d.i
-                if not G(p):
-                    diff = abs(self.values[p] - max([Q(p, action) for action in A(p)]))
-                    #4d.ii
-                    if diff > self.theta:
-                            p_queue.update(p, -diff)

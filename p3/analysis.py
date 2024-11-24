@@ -47,49 +47,48 @@ Modified by: George Rudolph
 
 def question2() -> tuple[float, float]:
     answerDiscount = 0.9
-    answerNoise = 0
+    answerNoise = 0.2
     return answerDiscount, answerNoise
 
-def question3a() -> tuple[float, float, float]:
-    answerDiscount = 0.2
-    answerNoise = 0
-    answerLivingReward = -1
+def question3a():
+    answerDiscount = None
+    answerNoise = None
+    answerLivingReward = None
     return answerDiscount, answerNoise, answerLivingReward
     # If not possible, return 'NOT POSSIBLE'
 
-def question3b() -> tuple[float, float, float]:
-    answerDiscount = 0.2
-    answerNoise = 0.1
-    answerLivingReward = 0.4
+def question3b():
+    answerDiscount = None
+    answerNoise = None
+    answerLivingReward = None
     return answerDiscount, answerNoise, answerLivingReward
     # If not possible, return 'NOT POSSIBLE'
 
-def question3c() -> tuple[float, float, float]:
-    answerDiscount = 1
-    answerNoise = 0
-    answerLivingReward = -1
+def question3c():
+    answerDiscount = None
+    answerNoise = None
+    answerLivingReward = None
     return answerDiscount, answerNoise, answerLivingReward
     # If not possible, return 'NOT POSSIBLE'
 
-def question3d() -> tuple[float, float, float]:
-    answerDiscount = 0.4
-    answerNoise = 0.2
-    answerLivingReward = 5
+def question3d():
+    answerDiscount = None
+    answerNoise = None
+    answerLivingReward = None
     return answerDiscount, answerNoise, answerLivingReward
     # If not possible, return 'NOT POSSIBLE'
 
-def question3e() -> tuple[float, float, float]:
-    answerDiscount = 0.1
-    answerNoise = 0
-    answerLivingReward = 10
+def question3e():
+    answerDiscount = None
+    answerNoise = None
+    answerLivingReward = None
     return answerDiscount, answerNoise, answerLivingReward
     # If not possible, return 'NOT POSSIBLE'
 
-def question8() -> str:    
+def question8():    
     answerEpsilon = None
     answerLearningRate = None
-    #return answerEpsilon, answerLearningRate
-    return 'NOT POSSIBLE'
+    return answerEpsilon, answerLearningRate
     # If not possible, return 'NOT POSSIBLE'
 
 def main() -> None:
