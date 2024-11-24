@@ -1,23 +1,47 @@
-'''
-# autograder.py
-# -------------
-# Licensing Information:  You are free to use or extend these projects for
-# educational purposes provided that (1) you do not distribute or publish
-# solutions, (2) you retain this notice, and (3) you provide clear
-# attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-#
-# Attribution Information: The Pacman AI projects were developed at UC Berkeley.
-# The core projects and autograders were primarily created by John DeNero
-# (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
-# Student side autograding was added by Brad Miller, Nick Hay, and
-# Pieter Abbeel (pabbeel@cs.berkeley.edu).
+"""
+Autograder for Student Code Evaluation and Testing
 
-Mods:
-1. George Rudolph 20 Dec 2021 use importlib instead of imp which is deprecated.
-   Run using Python 3.10
-'''
+This module provides a comprehensive testing framework for evaluating student code
+submissions in the Pacman AI projects. It handles test execution, grading, and
+result reporting with support for both automated and interactive testing modes.
 
-# imports from python standard library
+Key Components:
+- Test Runner: Executes test cases and validates outputs
+- Grading System: Scores submissions based on test results
+- Output Formatter: Generates detailed test reports
+- Solution Generator: Creates reference solutions
+- Display Manager: Handles graphics/text visualization
+
+Key Features:
+- Flexible command line interface for test configuration
+- Support for multiple student code files and test cases
+- Detailed output formatting with multiple display modes
+- Interactive graphics mode for visual validation
+- Automated grading with customizable scoring
+
+Originally from UC Berkeley CS188 Pacman Projects.
+Modified for use in USAFA CS330 course.
+
+Python Version: 3.13
+Last Modified: 24 Nov 2024
+Modified by: George Rudolph
+
+Changes in this version:
+- Verified compatibility with Python 3.13
+- Improved docstring organization and clarity
+- Added detailed component descriptions
+- Updated formatting for better readability
+- Modernized imports using importlib
+
+Attribution: The Pacman AI projects were developed at UC Berkeley.
+The core projects and autograders were primarily created by John DeNero
+(denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
+Student side autograding was added by Brad Miller, Nick Hay, and
+Pieter Abbeel (pabbeel@cs.berkeley.edu).
+"""
+
+from typing import List, Optional, Dict, Any, Tuple, Union
+
 import grading
 import importlib
 import optparse
@@ -32,8 +56,16 @@ try:
 except:
     pass
 
-# register arguments and set default values
-def readCommand(argv):
+def readCommand(argv: list[str]) -> optparse.Values:
+    """
+    Parse and validate command line arguments.
+
+    Args:
+        argv: List of command line arguments
+
+    Returns:
+        Parsed options object containing all configuration settings
+    """
     parser = optparse.OptionParser(
         description='Run public tests on student code')
     parser.set_defaults(generateSolutions=False, edxOutput=False, gsOutput=False,
@@ -90,8 +122,12 @@ def readCommand(argv):
     return options
 
 
-# confirm we should author solution files
-def confirmGenerate():
+def confirmGenerate() -> None:
+    """
+    Prompt for confirmation before overwriting solution files.
+    
+    Exits program if user does not confirm with 'yes'.
+    """
     print('WARNING: this action will overwrite any solution files.')
     print('Are you sure you want to proceed? (yes/no)')
     while True:
@@ -108,7 +144,14 @@ def confirmGenerate():
 # Looking at source of the traceback module, presuming it works
 # the same as the intepreters, it uses co_filename.  This is,
 # however, a readonly attribute.
-def setModuleName(module, filename):
+def setModuleName(module: Any, filename: str) -> None:
+    """
+    Set the module name for better error tracebacks.
+
+    Args:
+        module: Python module object to modify
+        filename: Name to set as the module's filename
+    """
     functionType = type(confirmGenerate)
     classType = type(optparse.Option)
 
@@ -127,12 +170,31 @@ def setModuleName(module, filename):
 import py_compile
 
 
-def loadModuleFile(moduleName, filePath):
+def loadModuleFile(moduleName: str, filePath: str) -> Any:
+    """
+    Load a Python module from file.
+
+    Args:
+        moduleName: Name of module to load
+        filePath: Path to module file
+
+    Returns:
+        Loaded module object
+    """
     return importlib.import_module(moduleName)
 
 
-def readFile(path, root=""):
-    "Read file from disk at specified path and return as string"
+def readFile(path: str, root: str = "") -> str:
+    """
+    Read file from disk at specified path and return as string.
+
+    Args:
+        path: Path to file
+        root: Optional root directory to prepend to path
+
+    Returns:
+        Contents of file as string
+    """
     with open(os.path.join(root, path), 'r') as handle:
         return handle.read()
 
@@ -169,7 +231,16 @@ ERROR_HINT_MAP = {
 import pprint
 
 
-def splitStrings(d):
+def splitStrings(d: dict) -> dict:
+    """
+    Split multi-line strings in dictionary values.
+
+    Args:
+        d: Dictionary to process
+
+    Returns:
+        New dictionary with string values split on newlines
+    """
     d2 = dict(d)
     for k in d:
         if k[0:2] == "__":
@@ -180,25 +251,41 @@ def splitStrings(d):
     return d2
 
 
-def printTest(testDict, solutionDict):
+def printTest(testDict: dict, solutionDict: dict) -> None:
+    """
+    Print a test case and its solution.
+
+    Args:
+        testDict: Dictionary containing test case
+        solutionDict: Dictionary containing solution
+    """
     pp = pprint.PrettyPrinter(indent=4)
     print("Test case:")
     for line in testDict["__raw_lines__"]:
-        print(("   |", line))
+        print(f"   |{line}")
     print("Solution:")
     for line in solutionDict["__raw_lines__"]:
-        print(("   |", line))
+        print(f"   |{line}")
 
 
-def runTest(testName, moduleDict, printTestCase=False, display=None):
+def runTest(testName: str, moduleDict: dict, printTestCase: bool = False, display: Any = None) -> None:
+    """
+    Run a single test case.
+
+    Args:
+        testName: Name of test to run
+        moduleDict: Dictionary of loaded modules
+        printTestCase: Whether to print test details
+        display: Display object for visualization
+    """
     import testParser
     import testClasses
     for module in moduleDict:
         setattr(sys.modules[__name__], module, moduleDict[module])
 
-    testDict = testParser.TestParser(testName + ".test").parse()
-    solutionDict = testParser.TestParser(testName + ".solution").parse()
-    test_out_file = os.path.join('%s.test_output' % testName)
+    testDict = testParser.TestParser(f"{testName}.test").parse()
+    solutionDict = testParser.TestParser(f"{testName}.solution").parse()
+    test_out_file = os.path.join(f'{testName}.test_output')
     testDict['test_out_file'] = test_out_file
     testClass = getattr(projectTestClasses, testDict['class'])
 
@@ -214,8 +301,18 @@ def runTest(testName, moduleDict, printTestCase=False, display=None):
     testCase.execute(grades, moduleDict, solutionDict)
 
 
-# returns all the tests you need to run in order to run question
-def getDepends(testParser, testRoot, question):
+def getDepends(testParser: Any, testRoot: str, question: str) -> list[str]:
+    """
+    Get all dependencies needed to run a question.
+
+    Args:
+        testParser: Parser for test files
+        testRoot: Root test directory
+        question: Question to find dependencies for
+
+    Returns:
+        List of question names in dependency order
+    """
     allDeps = [question]
     questionDict = testParser.TestParser(
         os.path.join(testRoot, question, 'CONFIG')).parse()
@@ -226,27 +323,51 @@ def getDepends(testParser, testRoot, question):
             allDeps = getDepends(testParser, testRoot, d) + allDeps
     return allDeps
 
-# get list of questions to grade
-def getTestSubdirs(testParser, testRoot, questionToGrade):
+def getTestSubdirs(testParser: Any, testRoot: str, questionToGrade: Optional[str]) -> list[str]:
+    """
+    Get list of questions to grade.
+
+    Args:
+        testParser: Parser for test files
+        testRoot: Root test directory
+        questionToGrade: Specific question to grade, or None for all
+
+    Returns:
+        List of question names to grade
+    """
     problemDict = testParser.TestParser(
         os.path.join(testRoot, 'CONFIG')).parse()
     if questionToGrade != None:
         questions = getDepends(testParser, testRoot, questionToGrade)
         if len(questions) > 1:
-            print(('Note: due to dependencies, the following tests will be run: %s' %
-                  ' '.join(questions)))
+            print(f'Note: due to dependencies, the following tests will be run: {" ".join(questions)}')
         return questions
     if 'order' in problemDict:
         return problemDict['order'].split()
     return sorted(os.listdir(testRoot))
 
 
-# evaluate student code
-def evaluate(generateSolutions, testRoot, moduleDict, exceptionMap=ERROR_HINT_MAP,
-             edxOutput=False, muteOutput=False, gsOutput=False,
-             printTestCase=False, questionToGrade=None, display=None):
-    # imports of testbench code.  note that the testClasses import must follow
-    # the import of student code due to dependencies
+def evaluate(generateSolutions: bool, testRoot: str, moduleDict: dict, exceptionMap: dict = ERROR_HINT_MAP,
+             edxOutput: bool = False, muteOutput: bool = False, gsOutput: bool = False,
+             printTestCase: bool = False, questionToGrade: Optional[str] = None, display: Any = None) -> float:
+    """
+    Evaluate student code and return grade.
+
+    Args:
+        generateSolutions: Whether to generate solution files
+        testRoot: Root test directory
+        moduleDict: Dictionary of loaded modules
+        exceptionMap: Map of exceptions to hint messages
+        edxOutput: Whether to generate edX output
+        muteOutput: Whether to suppress output
+        gsOutput: Whether to generate Gradescope output
+        printTestCase: Whether to print test details
+        questionToGrade: Specific question to grade
+        display: Display object for visualization
+
+    Returns:
+        Total points earned
+    """
     import testParser
     import testClasses
     for module in moduleDict:
@@ -272,9 +393,9 @@ def evaluate(generateSolutions, testRoot, moduleDict, exceptionMap=ERROR_HINT_MA
             subdir_path) if re.match('[^#~.].*\.test\Z', t)]
         tests = [re.match('(.*)\.test\Z', t).group(1) for t in tests]
         for t in sorted(tests):
-            test_file = os.path.join(subdir_path, '%s.test' % t)
-            solution_file = os.path.join(subdir_path, '%s.solution' % t)
-            test_out_file = os.path.join(subdir_path, '%s.test_output' % t)
+            test_file = os.path.join(subdir_path, f'{t}.test')
+            solution_file = os.path.join(subdir_path, f'{t}.solution')
+            test_out_file = os.path.join(subdir_path, f'{t}.test_output')
             testDict = testParser.TestParser(test_file).parse()
             if testDict.get("disabled", "false").lower() == "true":
                 continue
@@ -313,7 +434,17 @@ def evaluate(generateSolutions, testRoot, moduleDict, exceptionMap=ERROR_HINT_MA
     return grades.points
 
 
-def getDisplay(graphicsByDefault, options=None):
+def getDisplay(graphicsByDefault: bool, options: Optional[optparse.Values] = None) -> Any:
+    """
+    Get appropriate display object based on settings.
+
+    Args:
+        graphicsByDefault: Whether to use graphics by default
+        options: Command line options object
+
+    Returns:
+        Display object for visualization
+    """
     graphics = graphicsByDefault
     if options is not None and options.noGraphics:
         graphics = False
