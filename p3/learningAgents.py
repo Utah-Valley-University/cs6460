@@ -1,5 +1,33 @@
-# learningAgents.py
-# -----------------
+"""
+Learning agents for reinforcement learning in Pacman.
+
+This module provides base classes for reinforcement learning agents that estimate
+values and learn from experience in the Pacman environment. The key classes are:
+
+- ValueEstimationAgent: Abstract base class for agents that estimate state-action 
+  values using methods like value iteration or Q-learning. Maintains Q-values and
+  derives optimal policies.
+
+- ReinforcementAgent: Abstract base class for agents that learn from experience
+  through episodes. Handles training/testing phases, reward tracking, and 
+  exploration vs exploitation.
+
+The base classes implement common functionality like episode management and 
+parameter tracking, while specific learning algorithms are implemented in child
+classes like QLearningAgent.
+
+Python Version: 3.13
+Last Modified: 24 Nov 2024
+Modified by: George Rudolph
+
+Changes:
+- Added comprehensive module docstring
+- Added type hints  
+- Added detailed class descriptions
+- Added Python version compatibility note
+- Added last modified date and modifier
+- Verified Python 3.13 compatibility
+
 # Licensing Information:  You are free to use or extend these projects for
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
@@ -10,38 +38,38 @@
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
+"""
 
 import random
 import time
 import util
 from game import Directions, Agent, Actions
+from typing import List, Dict, Optional, Callable, Any, Union, Tuple
 
 
 
 class ValueEstimationAgent(Agent):
     """
-      Abstract agent which assigns values to (state,action)
-      Q-Values for an environment. As well as a value to a
-      state and a policy given respectively by,
-
-      V(s) = max_{a in actions} Q(s,a)
-      policy(s) = arg_max_{a in actions} Q(s,a)
-
-      Both ValueIterationAgent and QLearningAgent inherit
-      from this agent. While a ValueIterationAgent has
-      a model of the environment via a MarkovDecisionProcess
-      (see mdp.py) that is used to estimate Q-Values before
-      ever actually acting, the QLearningAgent estimates
-      Q-Values while acting in the environment.
+    Abstract agent which assigns values to (state,action) pairs.
+    
+    Maintains Q-Values for state-action pairs and derives state values and policies:
+    V(s) = max_{a in actions} Q(s,a)
+    policy(s) = arg_max_{a in actions} Q(s,a)
+    
+    Parent class for both ValueIterationAgent (model-based) and 
+    QLearningAgent (model-free) implementations.
     """
 
-    def __init__(self, alpha=1.0, epsilon=0.05, gamma=0.8, numTraining = 10):
+    def __init__(self, alpha: float = 1.0, epsilon: float = 0.05, 
+                 gamma: float = 0.8, numTraining: int = 10) -> None:
         """
-        Sets options, which can be passed in via the Pacman command line using -a alpha=0.5,...
-        alpha    - learning rate
-        epsilon  - exploration rate
-        gamma    - discount factor
-        numTraining - number of training episodes, i.e. no learning after these many episodes
+        Initialize learning parameters.
+
+        Args:
+            alpha: Learning rate for value updates
+            epsilon: Exploration rate for action selection
+            gamma: Discount factor for future rewards
+            numTraining: Number of training episodes before testing
         """
         self.alpha = float(alpha)
         self.epsilon = float(epsilon)
@@ -51,63 +79,88 @@ class ValueEstimationAgent(Agent):
     ####################################
     #    Override These Functions      #
     ####################################
-    def getQValue(self, state, action):
+    def getQValue(self, state: Any, action: Any) -> float:
         """
-        Should return Q(state,action)
+        Get Q-value for state-action pair.
+
+        Args:
+            state: Current game state
+            action: Proposed action
+            
+        Returns:
+            Estimated Q-value Q(state,action)
         """
         util.raiseNotDefined()
 
-    def getValue(self, state):
+    def getValue(self, state: Any) -> float:
         """
-        What is the value of this state under the best action?
-        Concretely, this is given by
+        Get maximum Q-value for state under any action.
+        
+        Computes V(s) = max_{a in actions} Q(s,a)
 
-        V(s) = max_{a in actions} Q(s,a)
-        """
-        util.raiseNotDefined()
-
-    def getPolicy(self, state):
-        """
-        What is the best action to take in the state. Note that because
-        we might want to explore, this might not coincide with getAction
-        Concretely, this is given by
-
-        policy(s) = arg_max_{a in actions} Q(s,a)
-
-        If many actions achieve the maximal Q-value,
-        it doesn't matter which is selected.
+        Args:
+            state: Current game state
+            
+        Returns:
+            Maximum Q-value achievable from state
         """
         util.raiseNotDefined()
 
-    def getAction(self, state):
+    def getPolicy(self, state: Any) -> Any:
         """
-        state: can call state.getLegalActions()
-        Choose an action and return it.
+        Get best action for state according to Q-values.
+        
+        Computes policy(s) = arg_max_{a in actions} Q(s,a)
+        If multiple actions achieve max Q-value, any may be returned.
+
+        Args:
+            state: Current game state
+            
+        Returns:
+            Action achieving maximum Q-value
+        """
+        util.raiseNotDefined()
+
+    def getAction(self, state: Any) -> Any:
+        """
+        Choose action to take in current state.
+        
+        May differ from policy for exploration purposes.
+
+        Args:
+            state: Current game state that has getLegalActions() method
+            
+        Returns:
+            Selected action to take
         """
         util.raiseNotDefined()
 
 class ReinforcementAgent(ValueEstimationAgent):
     """
-      Abstract Reinforcemnt Agent: A ValueEstimationAgent
-            which estimates Q-Values (as well as policies) from experience
-            rather than a model
-
-        What you need to know:
-                    - The environment will call
-                      observeTransition(state,action,nextState,deltaReward),
-                      which will call update(state, action, nextState, deltaReward)
-                      which you should override.
-        - Use self.getLegalActions(state) to know which actions
-                      are available in a state
+    Abstract reinforcement learning agent that learns from experience.
+    
+    Learns Q-values through environment interaction rather than a model.
+    Handles episode management, reward accumulation, and training/testing phases.
+    
+    Key methods to implement:
+    - update(state, action, nextState, deltaReward): Update Q-values from transition
+    - getLegalActions(state): Get available actions in state
     """
     ####################################
     #    Override These Functions      #
     ####################################
 
-    def update(self, state, action, nextState, reward):
+    def update(self, state: Any, action: Any, nextState: Any, reward: float) -> None:
         """
-                This class will call this function, which you write, after
-                observing a transition and reward
+        Update agent's knowledge after observing transition.
+        
+        Called after each (state,action,nextState,reward) transition.
+
+        Args:
+            state: Starting state
+            action: Action taken
+            nextState: Resulting state
+            reward: Reward received
         """
         util.raiseNotDefined()
 
@@ -115,36 +168,47 @@ class ReinforcementAgent(ValueEstimationAgent):
     #    Read These Functions          #
     ####################################
 
-    def getLegalActions(self,state):
+    def getLegalActions(self, state: Any) -> List[Any]:
         """
-          Get the actions available for a given
-          state. This is what you should use to
-          obtain legal actions for a state
+        Get legal actions available in given state.
+        
+        Args:
+            state: Current game state
+            
+        Returns:
+            List of legal actions in state
         """
         return self.actionFn(state)
 
-    def observeTransition(self, state,action,nextState,deltaReward):
+    def observeTransition(self, state: Any, action: Any, 
+                         nextState: Any, deltaReward: float) -> None:
         """
-            Called by environment to inform agent that a transition has
-            been observed. This will result in a call to self.update
-            on the same arguments
-
-            NOTE: Do *not* override or call this function
+        Process observed transition and update agent accordingly.
+        
+        Accumulates episode rewards and calls update().
+        
+        Args:
+            state: Starting state
+            action: Action taken  
+            nextState: Resulting state
+            deltaReward: Reward received
+            
+        Note: Do not override or call this function directly
         """
         self.episodeRewards += deltaReward
         self.update(state,action,nextState,deltaReward)
 
-    def startEpisode(self):
-        """
-          Called by environment when new episode is starting
-        """
+    def startEpisode(self) -> None:
+        """Initialize state for new episode."""
         self.lastState = None
         self.lastAction = None
         self.episodeRewards = 0.0
 
-    def stopEpisode(self):
+    def stopEpisode(self) -> None:
         """
-          Called by environment when episode is done
+        Clean up after episode completion.
+        
+        Accumulates rewards and updates learning parameters if training complete.
         """
         if self.episodesSoFar < self.numTraining:
             self.accumTrainRewards += self.episodeRewards
@@ -156,20 +220,25 @@ class ReinforcementAgent(ValueEstimationAgent):
             self.epsilon = 0.0    # no exploration
             self.alpha = 0.0      # no learning
 
-    def isInTraining(self):
+    def isInTraining(self) -> bool:
+        """Check if agent is still in training phase."""
         return self.episodesSoFar < self.numTraining
 
-    def isInTesting(self):
+    def isInTesting(self) -> bool:
+        """Check if agent is in testing phase."""
         return not self.isInTraining()
 
-    def __init__(self, actionFn = None, numTraining=100, epsilon=0.5, alpha=0.5, gamma=1):
+    def __init__(self, actionFn: Optional[Callable] = None, numTraining: int = 100, 
+                 epsilon: float = 0.5, alpha: float = 0.5, gamma: float = 1) -> None:
         """
-        actionFn: Function which takes a state and returns the list of legal actions
+        Initialize reinforcement learning agent.
 
-        alpha    - learning rate
-        epsilon  - exploration rate
-        gamma    - discount factor
-        numTraining - number of training episodes, i.e. no learning after these many episodes
+        Args:
+            actionFn: Function that takes state and returns legal actions
+            numTraining: Number of training episodes
+            epsilon: Exploration rate
+            alpha: Learning rate
+            gamma: Discount factor
         """
         if actionFn == None:
             actionFn = lambda state: state.getLegalActions()
@@ -185,19 +254,27 @@ class ReinforcementAgent(ValueEstimationAgent):
     ################################
     # Controls needed for Crawler  #
     ################################
-    def setEpsilon(self, epsilon):
+    def setEpsilon(self, epsilon: float) -> None:
+        """Set exploration rate."""
         self.epsilon = epsilon
 
-    def setLearningRate(self, alpha):
+    def setLearningRate(self, alpha: float) -> None:
+        """Set learning rate."""
         self.alpha = alpha
 
-    def setDiscount(self, discount):
+    def setDiscount(self, discount: float) -> None:
+        """Set discount factor."""
         self.discount = discount
 
-    def doAction(self,state,action):
+    def doAction(self, state: Any, action: Any) -> None:
         """
-            Called by inherited class when
-            an action is taken in a state
+        Record last state and action.
+        
+        Called by child classes when taking actions.
+
+        Args:
+            state: Current state
+            action: Action being taken
         """
         self.lastState = state
         self.lastAction = action
@@ -205,24 +282,40 @@ class ReinforcementAgent(ValueEstimationAgent):
     ###################
     # Pacman Specific #
     ###################
-    def observationFunction(self, state):
+    def observationFunction(self, state: Any) -> Any:
         """
-            This is where we ended up after our last action.
-            The simulation should somehow ensure this is called
+        Process new state observation after last action.
+        
+        Args:
+            state: New game state
+            
+        Returns:
+            The observed state
         """
         if not self.lastState is None:
             reward = state.getScore() - self.lastState.getScore()
             self.observeTransition(self.lastState, self.lastAction, state, reward)
         return state
 
-    def registerInitialState(self, state):
+    def registerInitialState(self, state: Any) -> None:
+        """
+        Initialize episode and print training message if first episode.
+        
+        Args:
+            state: Initial game state
+        """
         self.startEpisode()
         if self.episodesSoFar == 0:
-            print('Beginning %d episodes of Training' % (self.numTraining))
+            print(f'Beginning {self.numTraining} episodes of Training')
 
-    def final(self, state):
+    def final(self, state: Any) -> None:
         """
-          Called by Pacman game at the terminal state
+        Handle end of episode.
+        
+        Updates Q-values for final transition and prints progress statistics.
+
+        Args:
+            state: Terminal game state
         """
         deltaReward = state.getScore() - self.lastState.getScore()
         self.observeTransition(self.lastState, self.lastAction, state, deltaReward)
@@ -241,20 +334,17 @@ class ReinforcementAgent(ValueEstimationAgent):
             windowAvg = self.lastWindowAccumRewards / float(NUM_EPS_UPDATE)
             if self.episodesSoFar <= self.numTraining:
                 trainAvg = self.accumTrainRewards / float(self.episodesSoFar)
-                print('\tCompleted %d out of %d training episodes' % (
-                       self.episodesSoFar,self.numTraining))
-                print('\tAverage Rewards over all training: %.2f' % (
-                        trainAvg))
+                print(f'\tCompleted {self.episodesSoFar} out of {self.numTraining} training episodes')
+                print(f'\tAverage Rewards over all training: {trainAvg:.2f}')
             else:
                 testAvg = float(self.accumTestRewards) / (self.episodesSoFar - self.numTraining)
-                print('\tCompleted %d test episodes' % (self.episodesSoFar - self.numTraining))
-                print('\tAverage Rewards over testing: %.2f' % testAvg)
-            print('\tAverage Rewards for last %d episodes: %.2f'  % (
-                    NUM_EPS_UPDATE,windowAvg))
-            print('\tEpisode took %.2f seconds' % (time.time() - self.episodeStartTime))
+                print(f'\tCompleted {self.episodesSoFar - self.numTraining} test episodes')
+                print(f'\tAverage Rewards over testing: {testAvg:.2f}')
+            print(f'\tAverage Rewards for last {NUM_EPS_UPDATE} episodes: {windowAvg:.2f}')
+            print(f'\tEpisode took {time.time() - self.episodeStartTime:.2f} seconds')
             self.lastWindowAccumRewards = 0.0
             self.episodeStartTime = time.time()
 
         if self.episodesSoFar == self.numTraining:
             msg = 'Training Done (turning off epsilon and alpha)'
-            print('%s\n%s' % (msg,'-' * len(msg)))
+            print(f'{msg}\n{"-" * len(msg)}')
