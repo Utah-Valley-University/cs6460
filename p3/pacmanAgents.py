@@ -56,7 +56,7 @@ class LeftTurnAgent(game.Agent):
     180-degree turn. Stops only as a last resort.
     """
 
-    def getAction(self, state: game.GameState) -> str:
+    def getAction(self, state) -> str:
         """
         Determine next action prioritizing left turns.
 
@@ -100,7 +100,7 @@ class GreedyAgent(Agent):
         self.evaluationFunction = util.lookup(evalFn, globals())
         assert self.evaluationFunction != None
 
-    def getAction(self, state: game.GameState) -> str:
+    def getAction(self, state) -> str:
         """
         Choose action that maximizes immediate score.
 
@@ -124,7 +124,7 @@ class GreedyAgent(Agent):
         return random.choice(bestActions)
 
 
-def scoreEvaluation(state: game.GameState) -> float:
+def scoreEvaluation(state) -> float:
     """
     Evaluate game state based on score.
 
