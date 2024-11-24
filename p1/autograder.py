@@ -54,6 +54,7 @@ import testParser
 import testClasses
 import graphicsDisplay
 import textDisplay
+import util
 
 random.seed(0)
 

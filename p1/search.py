@@ -49,6 +49,7 @@ be used by the Pacman agents to find paths through the maze.
 """
 import abc
 from game import Directions
+import util
 from util import Stack, Queue, PriorityQueue, Counter
 from typing import List, Tuple, Any, Optional, Dict, Callable
 
