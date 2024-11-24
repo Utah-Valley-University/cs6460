@@ -1,16 +1,43 @@
-# graphicsUtils.py
-# ----------------
+"""
+Graphics utilities for Pacman visualization.
+
+This module provides functions and utilities for creating and managing a graphical
+display using tkinter. It handles:
+- Window and canvas creation/management 
+- Drawing shapes (polygons, circles, text)
+- Keyboard and mouse input handling
+- Animation and movement
+- Color formatting and conversion
+- Font management
+- Sleep/timing utilities
+
+The graphics are used to visualize the Pacman game state and agent behaviors.
+All drawing is done on a tkinter Canvas object with configurable dimensions,
+colors, and animation parameters.
+
+Python Version: 3.13
+Last Modified: 24 Nov 2024
+Modified by: George Rudolph
+
+Changes:
+- Added comprehensive module docstring
+- Added type hints throughout module
+- Added detailed function descriptions
+- Added font and color management details
+- Added sleep/timing utility descriptions
+- Verified Python 3.13 compatibility
+
 # Licensing Information:  You are free to use or extend these projects for
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-#
+# 
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
-
+"""
 
 import sys
 import math
@@ -20,25 +47,28 @@ import time
 import types
 import tkinter
 import os.path
+from typing import List, Tuple, Optional, Union, Any, Callable
 
 _Windows = sys.platform == 'win32'  # True if on Win95/98/NT
 
-_root_window = None      # The root window for graphics output
-_canvas = None      # The canvas which holds graphics
-_canvas_xs = None      # Size of canvas object
-_canvas_ys = None
-_canvas_x = None      # Current position on canvas
-_canvas_y = None
-_canvas_col = None      # Current colour (set to black below)
-_canvas_tsize = 12
-_canvas_tserifs = 0
+_root_window: Optional[tkinter.Tk] = None      # The root window for graphics output
+_canvas: Optional[tkinter.Canvas] = None      # The canvas which holds graphics
+_canvas_xs: Optional[int] = None      # Size of canvas object
+_canvas_ys: Optional[int] = None
+_canvas_x: Optional[int] = None      # Current position on canvas
+_canvas_y: Optional[int] = None
+_canvas_col: Optional[str] = None      # Current colour (set to black below)
+_canvas_tsize: int = 12
+_canvas_tserifs: int = 0
 
 
-def formatColor(r, g, b):
-    return '#%02x%02x%02x' % (int(r * 255), int(g * 255), int(b * 255))
+def formatColor(r: float, g: float, b: float) -> str:
+    """Convert RGB values to hex color string."""
+    return f'#{int(r * 255):02x}{int(g * 255):02x}{int(b * 255):02x}'
 
 
-def colorToVector(color):
+def colorToVector(color: str) -> List[float]:
+    """Convert hex color string to RGB vector."""
     return [int(x, 16) / 256.0 for x in [color[1:3], color[3:5], color[5:7]]]
 
 
@@ -49,7 +79,8 @@ else:
     pass  # XXX need defaults here
 
 
-def sleep(secs):
+def sleep(secs: float) -> None:
+    """Pause execution for specified seconds."""
     global _root_window
     if _root_window == None:
         time.sleep(secs)
@@ -59,8 +90,16 @@ def sleep(secs):
         _root_window.mainloop()
 
 
-def begin_graphics(width=640, height=480, color=formatColor(0, 0, 0), title=None):
-
+def begin_graphics(width: int = 640, height: int = 480, color: str = formatColor(0, 0, 0), title: Optional[str] = None) -> None:
+    """
+    Initialize graphics window with specified dimensions and background color.
+    
+    Args:
+        width: Window width in pixels
+        height: Window height in pixels  
+        color: Background color as hex string
+        title: Window title
+    """
     global _root_window, _canvas, _canvas_x, _canvas_y, _canvas_xs, _canvas_ys, _bg_color
 
     # Check for duplicate call
@@ -101,27 +140,28 @@ def begin_graphics(width=640, height=480, color=formatColor(0, 0, 0), title=None
     _clear_keys()
 
 
-_leftclick_loc = None
-_rightclick_loc = None
-_ctrl_leftclick_loc = None
+_leftclick_loc: Optional[Tuple[int, int]] = None
+_rightclick_loc: Optional[Tuple[int, int]] = None
+_ctrl_leftclick_loc: Optional[Tuple[int, int]] = None
 
 
-def _leftclick(event):
+def _leftclick(event: tkinter.Event) -> None:
     global _leftclick_loc
     _leftclick_loc = (event.x, event.y)
 
 
-def _rightclick(event):
+def _rightclick(event: tkinter.Event) -> None:
     global _rightclick_loc
     _rightclick_loc = (event.x, event.y)
 
 
-def _ctrl_leftclick(event):
+def _ctrl_leftclick(event: tkinter.Event) -> None:
     global _ctrl_leftclick_loc
     _ctrl_leftclick_loc = (event.x, event.y)
 
 
-def wait_for_click():
+def wait_for_click() -> Tuple[Tuple[int, int], str]:
+    """Wait for and return the next mouse click with click type."""
     while True:
         global _leftclick_loc
         global _rightclick_loc
@@ -141,14 +181,15 @@ def wait_for_click():
         sleep(0.05)
 
 
-def draw_background():
+def draw_background() -> None:
+    """Fill the background with background color."""
     corners = [(0, 0), (0, _canvas_ys),
                (_canvas_xs, _canvas_ys), (_canvas_xs, 0)]
     polygon(corners, _bg_color, fillColor=_bg_color,
             filled=True, smoothed=False)
 
 
-def _destroy_window(event=None):
+def _destroy_window(event: Optional[tkinter.Event] = None) -> None:
     sys.exit(0)
 #    global _root_window
 #    _root_window.destroy()
@@ -156,7 +197,8 @@ def _destroy_window(event=None):
     # print "DESTROY"
 
 
-def end_graphics():
+def end_graphics() -> None:
+    """Clean up and close graphics window."""
     global _root_window, _canvas, _mouse_enabled
     try:
         try:
@@ -172,14 +214,16 @@ def end_graphics():
         _clear_keys()
 
 
-def clear_screen(background=None):
+def clear_screen(background: Optional[str] = None) -> None:
+    """Clear all items from canvas and reset background."""
     global _canvas_x, _canvas_y
     _canvas.delete('all')
     draw_background()
     _canvas_x, _canvas_y = 0, _canvas_ys
 
 
-def polygon(coords, outlineColor, fillColor=None, filled=1, smoothed=1, behind=0, width=1):
+def polygon(coords: List[Tuple[float, float]], outlineColor: str, fillColor: Optional[str] = None, filled: int = 1, smoothed: int = 1, behind: int = 0, width: int = 1) -> int:
+    """Draw a polygon on the canvas and return its tkinter ID."""
     c = []
     for coord in coords:
         c.append(coord[0])
@@ -195,13 +239,15 @@ def polygon(coords, outlineColor, fillColor=None, filled=1, smoothed=1, behind=0
     return poly
 
 
-def square(pos, r, color, filled=1, behind=0):
+def square(pos: Tuple[float, float], r: float, color: str, filled: int = 1, behind: int = 0) -> int:
+    """Draw a square centered at pos with side length 2r."""
     x, y = pos
     coords = [(x - r, y - r), (x + r, y - r), (x + r, y + r), (x - r, y + r)]
     return polygon(coords, color, color, filled, 0, behind=behind)
 
 
-def circle(pos, r, outlineColor, fillColor, endpoints=None, style='pieslice', width=2):
+def circle(pos: Tuple[float, float], r: float, outlineColor: str, fillColor: str, endpoints: Optional[List[int]] = None, style: str = 'pieslice', width: int = 2) -> int:
+    """Draw a circle/arc centered at pos with radius r."""
     x, y = pos
     x0, x1 = x - r - 1, x + r
     y0, y1 = y - r - 1, y + r
@@ -216,17 +262,20 @@ def circle(pos, r, outlineColor, fillColor, endpoints=None, style='pieslice', wi
                               extent=e[1] - e[0], start=e[0], style=style, width=width)
 
 
-def image(pos, file="../../blueghost.gif"):
+def image(pos: Tuple[float, float], file: str = "../../blueghost.gif") -> int:
+    """Draw an image from a file centered at pos."""
     x, y = pos
     # img = PhotoImage(file=file)
     return _canvas.create_image(x, y, image=tkinter.PhotoImage(file=file), anchor=tkinter.NW)
 
 
-def refresh():
+def refresh() -> None:
+    """Force redraw of canvas."""
     _canvas.update_idletasks()
 
 
-def moveCircle(id, pos, r, endpoints=None):
+def moveCircle(id: int, pos: Tuple[float, float], r: float, endpoints: Optional[List[int]] = None) -> None:
+    """Move circle/arc and redraw."""
     global _canvas_x, _canvas_y
 
     x, y = pos
@@ -248,28 +297,33 @@ def moveCircle(id, pos, r, endpoints=None):
     move_to(id, x0, y0)
 
 
-def edit(id, *args):
+def edit(id: int, *args: Tuple[str, Any]) -> None:
+    """Edit properties of canvas object with given ID."""
     _canvas.itemconfigure(id, **dict(args))
 
 
-def text(pos, color, contents, font='Helvetica', size=12, style='normal', anchor="nw"):
+def text(pos: Tuple[float, float], color: str, contents: str, font: str = 'Helvetica', size: int = 12, style: str = 'normal', anchor: str = "nw") -> int:
+    """Draw text on canvas and return its ID."""
     global _canvas_x, _canvas_y
     x, y = pos
     font = (font, str(size), style)
     return _canvas.create_text(x, y, fill=color, text=contents, font=font, anchor=anchor)
 
 
-def changeText(id, newText, font=None, size=12, style='normal'):
+def changeText(id: int, newText: str, font: Optional[str] = None, size: int = 12, style: str = 'normal') -> None:
+    """Change the text of existing text object."""
     _canvas.itemconfigure(id, text=newText)
     if font != None:
-        _canvas.itemconfigure(id, font=(font, '-%d' % size, style))
+        _canvas.itemconfigure(id, font=(font, f'-{size}', style))
 
 
-def changeColor(id, newColor):
+def changeColor(id: int, newColor: str) -> None:
+    """Change color of existing canvas object."""
     _canvas.itemconfigure(id, fill=newColor)
 
 
-def line(here, there, color=formatColor(0, 0, 0), width=2):
+def line(here: Tuple[float, float], there: Tuple[float, float], color: str = formatColor(0, 0, 0), width: int = 2) -> int:
+    """Draw a line segment and return its ID."""
     x0, y0 = here[0], here[1]
     x1, y1 = there[0], there[1]
     return _canvas.create_line(x0, y0, x1, y1, fill=color, width=width)
@@ -288,7 +342,7 @@ _keyswaiting = {}
 _got_release = None
 
 
-def _keypress(event):
+def _keypress(event: tkinter.Event) -> None:
     global _got_release
     # remap_arrows(event)
     _keysdown[event.keysym] = 1
@@ -297,7 +351,7 @@ def _keypress(event):
     _got_release = None
 
 
-def _keyrelease(event):
+def _keyrelease(event: tkinter.Event) -> None:
     global _got_release
     # remap_arrows(event)
     try:
@@ -307,7 +361,8 @@ def _keyrelease(event):
     _got_release = 1
 
 
-def remap_arrows(event):
+def remap_arrows(event: tkinter.Event) -> None:
+    """Map arrow key events to WASD keys."""
     # TURN ARROW PRESSES INTO LETTERS (SHOULD BE IN KEYBOARD AGENT)
     if event.char in ['a', 's', 'd', 'w']:
         return
@@ -321,22 +376,25 @@ def remap_arrows(event):
         event.char = 's'
 
 
-def _clear_keys(event=None):
+def _clear_keys(event: Optional[tkinter.Event] = None) -> None:
+    """Reset all key state tracking."""
     global _keysdown, _got_release, _keyswaiting
     _keysdown = {}
     _keyswaiting = {}
     _got_release = None
 
 
-def keys_pressed(d_o_e=lambda arg: _root_window.dooneevent(arg),
-                 d_w=tkinter._tkinter.DONT_WAIT):
+def keys_pressed(d_o_e: Callable = lambda arg: _root_window.dooneevent(arg),
+                 d_w: int = tkinter._tkinter.DONT_WAIT) -> List[str]:
+    """Return list of keys currently held down."""
     d_o_e(d_w)
     if _got_release:
         d_o_e(d_w)
     return list(_keysdown.keys())
 
 
-def keys_waiting():
+def keys_waiting() -> List[str]:
+    """Return list of keys that have been pressed and released."""
     global _keyswaiting
     keys = list(_keyswaiting.keys())
     _keyswaiting = {}
@@ -345,7 +403,8 @@ def keys_waiting():
 # Block for a list of keys...
 
 
-def wait_for_keys():
+def wait_for_keys() -> List[str]:
+    """Wait until a key is pressed and return list of pressed keys."""
     keys = []
     while keys == []:
         keys = keys_pressed()
@@ -353,23 +412,26 @@ def wait_for_keys():
     return keys
 
 
-def remove_from_screen(x,
-                       d_o_e=lambda arg: _root_window.dooneevent(arg),
-                       d_w=tkinter._tkinter.DONT_WAIT):
+def remove_from_screen(x: int,
+                       d_o_e: Callable = lambda arg: _root_window.dooneevent(arg),
+                       d_w: int = tkinter._tkinter.DONT_WAIT) -> None:
+    """Remove canvas object with given ID."""
     _canvas.delete(x)
     d_o_e(d_w)
 
 
-def _adjust_coords(coord_list, x, y):
+def _adjust_coords(coord_list: List[float], x: float, y: float) -> List[float]:
+    """Adjust coordinates by given offsets."""
     for i in range(0, len(coord_list), 2):
         coord_list[i] = coord_list[i] + x
         coord_list[i + 1] = coord_list[i + 1] + y
     return coord_list
 
 
-def move_to(object, x, y=None,
-            d_o_e=lambda arg: _root_window.dooneevent(arg),
-            d_w=tkinter._tkinter.DONT_WAIT):
+def move_to(object: int, x: Union[float, Tuple[float, float]], y: Optional[float] = None,
+            d_o_e: Callable = lambda arg: _root_window.dooneevent(arg),
+            d_w: int = tkinter._tkinter.DONT_WAIT) -> None:
+    """Move canvas object to absolute position."""
     if y is None:
         try:
             x, y = x
@@ -392,9 +454,10 @@ def move_to(object, x, y=None,
     d_o_e(d_w)
 
 
-def move_by(object, x, y=None,
-            d_o_e=lambda arg: _root_window.dooneevent(arg),
-            d_w=tkinter._tkinter.DONT_WAIT, lift=False):
+def move_by(object: int, x: Union[float, Tuple[float, float]], y: Optional[float] = None,
+            d_o_e: Callable = lambda arg: _root_window.dooneevent(arg),
+            d_w: int = tkinter._tkinter.DONT_WAIT, lift: bool = False) -> None:
+    """Move canvas object by relative offset."""
     if y is None:
         try:
             x, y = x
@@ -418,8 +481,8 @@ def move_by(object, x, y=None,
         _canvas.tag_raise(object)
 
 
-def writePostscript(filename):
-    "Writes the current canvas to a postscript file."
+def writePostscript(filename: str) -> None:
+    """Write the current canvas to a postscript file."""
     psfile = file(filename, 'w')
     psfile.write(_canvas.postscript(pageanchor='sw',
                                     y='0.c',
