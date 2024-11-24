@@ -1,5 +1,34 @@
-# featureExtractors.py
-# --------------------
+
+"""
+Feature extractors for Pacman game states.
+
+This module provides feature extractors that convert game states into feature vectors
+for use in reinforcement learning and machine learning algorithms. The extractors
+transform raw game states into meaningful numeric features that capture important
+aspects of the game state. Key extractors include:
+
+- IdentityExtractor: Basic state-action pair features for direct state representation
+- CoordinateExtractor: Position and action based features for spatial reasoning
+- SimpleExtractor: Basic reflex features like food and ghost distances for reactive behavior
+
+Features are returned as Counter objects mapping feature names to numeric values.
+The features can be used to train reinforcement learning agents or other ML models.
+
+Most code originally by Dan Klein and John Denero for CS188 at UC Berkeley.
+Some code from LiveWires Pacman implementation, used with permission.
+
+Python Version: 3.13
+Last Modified: 24 Nov 2024
+Modified by: George Rudolph
+
+Changes:
+- Added comprehensive module docstring
+- Added detailed feature extractor descriptions
+- Added type hints throughout module
+- Added Python version compatibility note
+- Added last modified date and modifier
+- Verified Python 3.13 compatibility
+
 # Licensing Information:  You are free to use or extend these projects for
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
@@ -11,40 +40,73 @@
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
-
-"Feature extractors for Pacman game states"
+"""
 
 from game import Directions, Actions
 import util
+from typing import Dict, List, Tuple, Any, Optional
 
 class FeatureExtractor:
-    def getFeatures(self, state, action):
+    def getFeatures(self, state: Any, action: str) -> util.Counter:
         """
-          Returns a dict from features to counts
-          Usually, the count will just be 1.0 for
-          indicator functions.
+        Returns a dict mapping features to their values.
+        
+        Args:
+            state: Current game state
+            action: Proposed action
+            
+        Returns:
+            Counter mapping feature names to numeric values, typically 1.0 for
+            indicator functions
         """
         util.raiseNotDefined()
 
 class IdentityExtractor(FeatureExtractor):
-    def getFeatures(self, state, action):
+    def getFeatures(self, state: Any, action: str) -> util.Counter:
+        """
+        Returns simple state-action pair feature.
+        
+        Args:
+            state: Current game state
+            action: Proposed action
+            
+        Returns:
+            Counter with single (state,action) feature
+        """
         feats = util.Counter()
         feats[(state,action)] = 1.0
         return feats
 
 class CoordinateExtractor(FeatureExtractor):
-    def getFeatures(self, state, action):
+    def getFeatures(self, state: Any, action: str) -> util.Counter:
+        """
+        Returns features based on coordinates and action.
+        
+        Args:
+            state: Current game state coordinates
+            action: Proposed action
+            
+        Returns:
+            Counter with state coordinates and action features
+        """
         feats = util.Counter()
         feats[state] = 1.0
-        feats['x=%d' % state[0]] = 1.0
-        feats['y=%d' % state[0]] = 1.0
-        feats['action=%s' % action] = 1.0
+        feats[f'x={state[0]}'] = 1.0
+        feats[f'y={state[0]}'] = 1.0
+        feats[f'action={action}'] = 1.0
         return feats
 
-def closestFood(pos, food, walls):
+def closestFood(pos: Tuple[int, int], food: List[List[bool]], walls: List[List[bool]]) -> Optional[int]:
     """
-    closestFood -- this is similar to the function that we have
-    worked on in the search project; here its all in one place
+    Finds distance to closest food using BFS search.
+    
+    Args:
+        pos: (x,y) starting position
+        food: 2D boolean array indicating food locations
+        walls: 2D boolean array indicating wall locations
+        
+    Returns:
+        Distance to closest food, or None if no food found
     """
     fringe = [(pos[0], pos[1], 0)]
     expanded = set()
@@ -65,14 +127,26 @@ def closestFood(pos, food, walls):
 
 class SimpleExtractor(FeatureExtractor):
     """
-    Returns simple features for a basic reflex Pacman:
-    - whether food will be eaten
-    - how far away the next food is
-    - whether a ghost collision is imminent
-    - whether a ghost is one step away
+    Returns simple features for a basic reflex Pacman.
+    
+    Features extracted:
+    - bias: Constant 1.0 feature
+    - #-of-ghosts-1-step-away: Count of nearby ghosts
+    - eats-food: Whether action leads to food
+    - closest-food: Distance to nearest food (normalized)
     """
 
-    def getFeatures(self, state, action):
+    def getFeatures(self, state: Any, action: str) -> util.Counter:
+        """
+        Extract basic movement features from state.
+        
+        Args:
+            state: Current game state
+            action: Proposed action
+            
+        Returns:
+            Counter with extracted feature values, normalized by 10.0
+        """
         # extract the grid of food and wall locations and get the ghost locations
         food = state.getFood()
         walls = state.getWalls()
