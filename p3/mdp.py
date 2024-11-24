@@ -1,4 +1,24 @@
-'''
+"""
+Markov Decision Process (MDP) abstract base class.
+
+This module defines the core interface for Markov Decision Process environments.
+An MDP consists of:
+- States: The possible configurations of the environment
+- Actions: What can be done in each state 
+- Transitions: How actions change the state (with probabilities)
+- Rewards: Numeric feedback for state-action-state transitions
+
+The MDP interface is used by reinforcement learning and planning algorithms
+to interact with environments in a standard way.
+
+Python Version: 3.13
+Last Modified: 27 Feb 2022
+Modified by: George Rudolph
+
+Changes:
+- Added abc module and abstract method decorators
+- Added comprehensive docstrings and type hints
+
 # mdp.py
 # ------
 # Licensing Information:  You are free to use or extend these projects for
@@ -11,68 +31,98 @@
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
-
-
-Mods:
-1. George Rudolph 27 Feb 2022: import abc module and add abstract method decorators
-'''
+"""
 
 import abc
-#import random
+from typing import List, Tuple, Any
 
 class MarkovDecisionProcess(metaclass=abc.ABCMeta):
     @abc.abstractmethod
-    def getStates(self):
+    def getStates(self) -> List[Any]:
         """
         Return a list of all states in the MDP.
-        Not generally possible for large MDPs.
+        
+        Note: Not generally feasible for large MDPs.
+        
+        Returns:
+            List of all possible states in the environment
         """
         return
 
     @abc.abstractmethod
-    def getStartState(self):
+    def getStartState(self) -> Any:
         """
-        Return the start state of the MDP.
-        """
-        return
-
-    @abc.abstractmethod
-    def getPossibleActions(self, state):
-        """
-        Return list of possible actions from 'state'.
+        Return the initial state of the MDP.
+        
+        Returns:
+            The state where the agent begins
         """
         return
 
     @abc.abstractmethod
-    def getTransitionStatesAndProbs(self, state, action):
+    def getPossibleActions(self, state: Any) -> List[Any]:
         """
-        Returns list of (nextState, prob) pairs
-        representing the states reachable
-        from 'state' by taking 'action' along
-        with their transition probabilities.
-
-        Note that in Q-Learning and reinforcment
-        learning in general, we do not know these
-        probabilities nor do we directly model them.
+        Return list of possible actions available in given state.
+        
+        Args:
+            state: The current state
+            
+        Returns:
+            List of actions that can be taken from this state
         """
         return
 
     @abc.abstractmethod
-    def getReward(self, state, action, nextState):
+    def getTransitionStatesAndProbs(self, state: Any, action: Any) -> List[Tuple[Any, float]]:
         """
-        Get the reward for the state, action, nextState transition.
+        Get the transition model for a state-action pair.
+        
+        Args:
+            state: The current state
+            action: The action to take
+            
+        Returns:
+            List of (nextState, probability) pairs representing possible
+            next states and their transition probabilities
+            
+        Note:
+            In Q-Learning and reinforcement learning generally, these
+            probabilities are not known or directly modeled.
+        """
+        return
 
-        Not available in reinforcement learning.
+    @abc.abstractmethod
+    def getReward(self, state: Any, action: Any, nextState: Any) -> float:
+        """
+        Get the reward for a state-action-nextState transition.
+        
+        Args:
+            state: The current state
+            action: The action taken
+            nextState: The resulting next state
+            
+        Returns:
+            The reward value for this transition
+            
+        Note:
+            Not typically available in reinforcement learning settings.
         """
         return
         
     @abc.abstractmethod
-    def isTerminal(self, state):
+    def isTerminal(self, state: Any) -> bool:
         """
-        Returns true if the current state is a terminal state.  By convention,
-        a terminal state has zero future rewards.  Sometimes the terminal state(s)
-        may have no possible actions.  It is also common to think of the terminal
-        state as having a self-loop action 'pass' with zero reward; the formulations
-        are equivalent.
+        Check if a state is terminal.
+        
+        Args:
+            state: The state to check
+            
+        Returns:
+            True if state is terminal, False otherwise
+            
+        Note:
+            Terminal states by convention have zero future rewards.
+            They may have no possible actions, or equivalently a self-loop
+            'pass' action with zero reward.
         """
         return
