@@ -57,8 +57,6 @@ from typing import List, Tuple, Dict, Optional, Any, Union
 #  GRAPHICS DISPLAY CODE  #
 ###########################
 
-
-
 DEFAULT_GRID_SIZE = 30.0
 INFO_PANE_HEIGHT = 35
 BACKGROUND_COLOR = formatColor(0, 0, 0)

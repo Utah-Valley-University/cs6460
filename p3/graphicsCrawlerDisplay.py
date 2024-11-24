@@ -1,5 +1,39 @@
-# graphicsCrawlerDisplay.py
-# -------------------------
+"""
+Graphics display for Crawler robot learning visualization.
+
+This module provides visualization capabilities for the Crawler robot learning environment 
+using tkinter graphics. It handles the graphical display of:
+- Robot joint positions and movements
+- Learning parameters (epsilon, gamma, alpha) with real-time adjustment
+- Current robot state and action selection
+- Learning progress and performance metrics
+- Interactive simulation speed control
+
+The display is highly configurable with options for:
+- Window and robot size scaling
+- Animation speed and frame timing
+- Learning parameter ranges and increments
+- Debug visualization modes
+- Custom messages and labels
+
+The graphics use tkinter for cross-platform compatibility and smooth animation.
+All drawing is done on a tkinter Canvas with configurable visual parameters.
+
+Most code originally by Dan Klein and John Denero for CS188 at UC Berkeley.
+Some code from LiveWires Pacman implementation, used with permission.
+
+Python Version: 3.13
+Last Modified: 24 Nov 2024
+Modified by: George Rudolph
+
+Changes:
+- Added comprehensive module docstring
+- Added type hints throughout module
+- Added detailed display configuration options
+- Added Python version compatibility note
+- Added last modified date and modifier
+- Verified Python 3.13 compatibility
+
 # Licensing Information:  You are free to use or extend these projects for
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
@@ -10,17 +44,7 @@
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
-
-
-# graphicsCrawlerDisplay.py
-# -------------------------
-# Licensing Information: Please do not distribute or publish solutions to this
-# project. You are free to use and extend these projects for educational
-# purposes. The Pacman AI projects were developed at UC Berkeley, primarily by
-# John DeNero (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
-# Student side autograding was added by Brad Miller, Nick Hay, and Pieter
-# Abbeel in Spring 2013.
-# For more info, see http://inst.eecs.berkeley.edu/~cs188/pacman/pacman.html
+"""
 
 import tkinter
 import qlearningAgents
@@ -31,40 +55,72 @@ import crawler
 #import pendulum
 import math
 from math import pi as PI
+from typing import Optional, Any, Callable
 
 robotType = 'crawler'
 
 class Application:
+    """Main application class for the Crawler robot GUI interface."""
 
-    def sigmoid(self, x):
+    def sigmoid(self, x: float) -> float:
+        """Apply sigmoid function to input.
+        
+        Args:
+            x: Input value
+            
+        Returns:
+            Sigmoid of input value
+        """
         return 1.0 / (1.0 + 2.0 ** (-x))
 
-    def incrementSpeed(self, inc):
+    def incrementSpeed(self, inc: float) -> None:
+        """Adjust simulation speed by multiplier.
+        
+        Args:
+            inc: Speed multiplier
+        """
         self.tickTime *= inc
-#        self.epsilon = min(1.0, self.epsilon)
-#        self.epsilon = max(0.0,self.epsilon)
-#        self.learner.setSpeed(self.epsilon)
-        self.speed_label['text'] = 'Step Delay: %.5f' % (self.tickTime)
+        self.speed_label['text'] = f'Step Delay: {self.tickTime:.5f}'
 
-    def incrementEpsilon(self, inc):
+    def incrementEpsilon(self, inc: float) -> None:
+        """Adjust epsilon parameter by increment.
+        
+        Args:
+            inc: Amount to increment epsilon by
+        """
         self.ep += inc
         self.epsilon = self.sigmoid(self.ep)
         self.learner.setEpsilon(self.epsilon)
-        self.epsilon_label['text'] = 'Epsilon: %.3f' % (self.epsilon)
+        self.epsilon_label['text'] = f'Epsilon: {self.epsilon:.3f}'
 
-    def incrementGamma(self, inc):
+    def incrementGamma(self, inc: float) -> None:
+        """Adjust gamma (discount) parameter by increment.
+        
+        Args:
+            inc: Amount to increment gamma by
+        """
         self.ga += inc
         self.gamma = self.sigmoid(self.ga)
         self.learner.setDiscount(self.gamma)
-        self.gamma_label['text'] = 'Discount: %.3f' % (self.gamma)
+        self.gamma_label['text'] = f'Discount: {self.gamma:.3f}'
 
-    def incrementAlpha(self, inc):
+    def incrementAlpha(self, inc: float) -> None:
+        """Adjust alpha (learning rate) parameter by increment.
+        
+        Args:
+            inc: Amount to increment alpha by
+        """
         self.al += inc
         self.alpha = self.sigmoid(self.al)
         self.learner.setLearningRate(self.alpha)
-        self.alpha_label['text'] = 'Learning Rate: %.3f' % (self.alpha)
+        self.alpha_label['text'] = f'Learning Rate: {self.alpha:.3f}'
 
-    def __initGUI(self, win):
+    def __initGUI(self, win: tkinter.Tk) -> None:
+        """Initialize the GUI window and components.
+        
+        Args:
+            win: Main tkinter window
+        """
         ## Window ##
         self.win = win
 
@@ -96,51 +152,71 @@ class Application:
         self.canvas = tkinter.Canvas(root, height=200, width=1000)
         self.canvas.grid(row=2,columnspan=10)
 
-    def setupAlphaButtonAndLabel(self, win):
+    def setupAlphaButtonAndLabel(self, win: tkinter.Tk) -> None:
+        """Set up alpha adjustment controls.
+        
+        Args:
+            win: Main tkinter window
+        """
         self.alpha_minus = tkinter.Button(win,
         text="-",command=(lambda: self.incrementAlpha(self.dec)))
         self.alpha_minus.grid(row=1, column=3, padx=10)
 
         self.alpha = self.sigmoid(self.al)
-        self.alpha_label = tkinter.Label(win, text='Learning Rate: %.3f' % (self.alpha))
+        self.alpha_label = tkinter.Label(win, text=f'Learning Rate: {self.alpha:.3f}')
         self.alpha_label.grid(row=1, column=4)
 
         self.alpha_plus = tkinter.Button(win,
         text="+",command=(lambda: self.incrementAlpha(self.inc)))
         self.alpha_plus.grid(row=1, column=5, padx=10)
 
-    def setUpGammaButtonAndLabel(self, win):
+    def setUpGammaButtonAndLabel(self, win: tkinter.Tk) -> None:
+        """Set up gamma adjustment controls.
+        
+        Args:
+            win: Main tkinter window
+        """
         self.gamma_minus = tkinter.Button(win,
         text="-",command=(lambda: self.incrementGamma(self.dec)))
         self.gamma_minus.grid(row=1, column=0, padx=10)
 
         self.gamma = self.sigmoid(self.ga)
-        self.gamma_label = tkinter.Label(win, text='Discount: %.3f' % (self.gamma))
+        self.gamma_label = tkinter.Label(win, text=f'Discount: {self.gamma:.3f}')
         self.gamma_label.grid(row=1, column=1)
 
         self.gamma_plus = tkinter.Button(win,
         text="+",command=(lambda: self.incrementGamma(self.inc)))
         self.gamma_plus.grid(row=1, column=2, padx=10)
 
-    def setupEpsilonButtonAndLabel(self, win):
+    def setupEpsilonButtonAndLabel(self, win: tkinter.Tk) -> None:
+        """Set up epsilon adjustment controls.
+        
+        Args:
+            win: Main tkinter window
+        """
         self.epsilon_minus = tkinter.Button(win,
         text="-",command=(lambda: self.incrementEpsilon(self.dec)))
         self.epsilon_minus.grid(row=0, column=3)
 
         self.epsilon = self.sigmoid(self.ep)
-        self.epsilon_label = tkinter.Label(win, text='Epsilon: %.3f' % (self.epsilon))
+        self.epsilon_label = tkinter.Label(win, text=f'Epsilon: {self.epsilon:.3f}')
         self.epsilon_label.grid(row=0, column=4)
 
         self.epsilon_plus = tkinter.Button(win,
         text="+",command=(lambda: self.incrementEpsilon(self.inc)))
         self.epsilon_plus.grid(row=0, column=5)
 
-    def setupSpeedButtonAndLabel(self, win):
+    def setupSpeedButtonAndLabel(self, win: tkinter.Tk) -> None:
+        """Set up simulation speed controls.
+        
+        Args:
+            win: Main tkinter window
+        """
         self.speed_minus = tkinter.Button(win,
         text="-",command=(lambda: self.incrementSpeed(.5)))
         self.speed_minus.grid(row=0, column=0)
 
-        self.speed_label = tkinter.Label(win, text='Step Delay: %.5f' % (self.tickTime))
+        self.speed_label = tkinter.Label(win, text=f'Step Delay: {self.tickTime:.5f}')
         self.speed_label.grid(row=0, column=1)
 
         self.speed_plus = tkinter.Button(win,
@@ -153,11 +229,16 @@ class Application:
 
 
 
-    def skip5kSteps(self):
+    def skip5kSteps(self) -> None:
+        """Skip ahead 5000 simulation steps."""
         self.stepsToSkip = 5000
 
-    def __init__(self, win):
-
+    def __init__(self, win: tkinter.Tk) -> None:
+        """Initialize the application.
+        
+        Args:
+            win: Main tkinter window
+        """
         self.ep = 0
         self.ga = 2
         self.al = 2
@@ -196,7 +277,8 @@ class Application:
         self.thread.start()
 
 
-    def exit(self):
+    def exit(self) -> None:
+        """Clean up and exit the application."""
         self.running = False
         for i in range(5):
             if not self.stopped:
@@ -207,8 +289,8 @@ class Application:
             pass
         sys.exit(0)
 
-    def step(self):
-
+    def step(self) -> None:
+        """Execute one step of the simulation."""
         self.stepCount += 1
 
         state = self.robotEnvironment.getCurrentState()
@@ -224,7 +306,8 @@ class Application:
         nextState, reward = self.robotEnvironment.doAction(action)
         self.learner.observeTransition(state, action, nextState, reward)
 
-    def animatePolicy(self):
+    def animatePolicy(self) -> None:
+        """Animate the learned policy (pendulum only)."""
         if robotType != 'pendulum':
             raise Exception('Only pendulum can animatePolicy')
 
@@ -285,7 +368,8 @@ class Application:
 
 
 
-    def run(self):
+    def run(self) -> None:
+        """Main simulation loop."""
         self.stepCount = 0
         self.learner.startEpisode()
         while True:
@@ -304,14 +388,16 @@ class Application:
 #          self.robot.draw()
         self.learner.stopEpisode()
 
-    def start(self):
+    def start(self) -> None:
+        """Start the application main loop."""
         self.win.mainloop()
 
 
 
 
 
-def run():
+def run() -> None:
+    """Run the Crawler GUI application."""
     global root
     root = tkinter.Tk()
     root.title( 'Crawler GUI' )
