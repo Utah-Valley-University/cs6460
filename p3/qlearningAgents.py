@@ -1,3 +1,31 @@
+"""
+Q-learning agents for reinforcement learning in Pacman.
+
+This module implements Q-learning agents that learn optimal policies through
+experience in the Pacman environment. It includes tabular Q-learning and
+approximate Q-learning with feature-based representations. The agents use
+epsilon-greedy exploration and temporal difference learning to update Q-values.
+
+Classes:
+    QLearningAgent: Base tabular Q-learning implementation
+    PacmanQAgent: Q-learning agent adapted for Pacman
+    ApproximateQAgent: Q-learning with feature approximation
+
+Functions:
+    None
+
+Python Version: 3.13
+Last Modified: 24 Nov 2024
+Modified by: George Rudolph
+
+Changes:
+- Added comprehensive module docstring
+- Added type hints
+- Added class descriptions
+- Added function section to docstring
+- Verified Python 3.13 compatibility
+- Added modifier attribution
+
 # qlearningAgents.py
 # ------------------
 # Licensing Information:  You are free to use or extend these projects for
@@ -10,36 +38,41 @@
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
+"""
+from typing import Any, Dict, List, Optional, Tuple, Union
 
+import math
+import random
+import util
 
 from game import *
 from learningAgents import ReinforcementAgent
 from featureExtractors import *
 
-import random,util,math
+
 
 class QLearningAgent(ReinforcementAgent):
     """
-      Q-Learning Agent
+    Q-Learning Agent that learns through experience.
 
-      Functions you should fill in:
-        - computeValueFromQValues
-        - computeActionFromQValues
-        - getQValue
-        - getAction
-        - update
+    This agent implements the Q-learning algorithm to learn optimal action values
+    through exploration and exploitation. It maintains Q-values for state-action pairs
+    and updates them based on received rewards and future value estimates.
 
-      Instance variables you have access to
-        - self.epsilon (exploration prob)
-        - self.alpha (learning rate)
-        - self.discount (discount rate)
+    Key Functions:
+        - computeValueFromQValues: Computes maximum Q-value for a state
+        - computeActionFromQValues: Determines best action based on Q-values
+        - getQValue: Retrieves Q-value for a state-action pair
+        - getAction: Selects action using epsilon-greedy policy
+        - update: Updates Q-values based on experience
 
-      Functions you should use
-        - self.getLegalActions(state)
-          which returns legal actions for a state
+    Instance Variables:
+        - self.epsilon: Exploration probability
+        - self.alpha: Learning rate
+        - self.discount: Discount factor for future rewards
     """
-    def __init__(self, **args):
-        "You can initialize Q-values here..."
+    def __init__(self, **args) -> None:
+        """Initialize Q-learning agent with empty Q-value table."""
         ReinforcementAgent.__init__(self, **args)
 
         "*** YOUR CODE HERE ***"
@@ -47,23 +80,31 @@ class QLearningAgent(ReinforcementAgent):
         self.values = util.Counter()
 
 
-    def getQValue(self, state, action):
+    def getQValue(self, state: Any, action: Any) -> float:
         """
-          Returns Q(state,action)
-          Should return 0.0 if we have never seen a state
-          or the Q node value otherwise
+        Get Q-value for a state-action pair.
+
+        Args:
+            state: Current game state
+            action: Action to evaluate
+
+        Returns:
+            float: Q-value for the state-action pair, 0.0 if never seen
         """
         "*** YOUR CODE HERE ***"
 
         return self.values[state, action]
 
 
-    def computeValueFromQValues(self, state):
+    def computeValueFromQValues(self, state: Any) -> float:
         """
-          Returns max_action Q(state,action)
-          where the max is over legal actions.  Note that if
-          there are no legal actions, which is the case at the
-          terminal state, you should return a value of 0.0.
+        Compute maximum Q-value over all legal actions for a state.
+
+        Args:
+            state: Current game state
+
+        Returns:
+            float: Maximum Q-value, 0.0 if no legal actions exist
         """
         "*** YOUR CODE HERE ***"
 
@@ -71,11 +112,15 @@ class QLearningAgent(ReinforcementAgent):
         return max(qvalues, default=0.0)
 
 
-    def computeActionFromQValues(self, state):
+    def computeActionFromQValues(self, state: Any) -> Any:
         """
-          Compute the best action to take in a state.  Note that if there
-          are no legal actions, which is the case at the terminal state,
-          you should return None.
+        Compute optimal action to take in a state based on Q-values.
+
+        Args:
+            state: Current game state
+
+        Returns:
+            Action: Best action to take, None if no legal actions exist
         """
         "*** YOUR CODE HERE ***"
 
@@ -83,16 +128,18 @@ class QLearningAgent(ReinforcementAgent):
         return max(actions, default=None, key=lambda action: self.getQValue(state, action))
 
 
-    def getAction(self, state):
+    def getAction(self, state: Any) -> Any:
         """
-          Compute the action to take in the current state.  With
-          probability self.epsilon, we should take a random action and
-          take the best policy action otherwise.  Note that if there are
-          no legal actions, which is the case at the terminal state, you
-          should choose None as the action.
+        Select action using epsilon-greedy policy.
 
-          HINT: You might want to use util.flipCoin(prob)
-          HINT: To pick randomly from a list, use random.choice(list)
+        With probability epsilon, chooses a random action for exploration.
+        Otherwise, chooses the best action based on current Q-values.
+
+        Args:
+            state: Current game state
+
+        Returns:
+            Action: Selected action, None if no legal actions exist
         """
         # Pick Action
         actions = self.getLegalActions(state)
@@ -104,14 +151,18 @@ class QLearningAgent(ReinforcementAgent):
         
         return self.computeActionFromQValues(state)
 
-    def update(self, state, action, s_prime, reward):
+    def update(self, state: Any, action: Any, s_prime: Any, reward: float) -> None:
         """
-          The parent class calls this to observe a
-          state = action => nextState and reward transition.
-          You should do your Q-Value update here
+        Update Q-values based on observed transition.
 
-          NOTE: You should never call this function,
-          it will be called on your behalf
+        Performs Q-learning update using the formula:
+        Q(s,a) = (1-α)Q(s,a) + α[r + γ*max_a'Q(s',a')]
+
+        Args:
+            state: Starting state
+            action: Action taken
+            s_prime: Resulting next state
+            reward: Reward received
         """
         "*** YOUR CODE HERE ***"
         alpha = self.alpha
@@ -123,26 +174,26 @@ class QLearningAgent(ReinforcementAgent):
         self.values[state, action] = new_value
 
 
-    def getPolicy(self, state):
+    def getPolicy(self, state: Any) -> Any:
         return self.computeActionFromQValues(state)
 
-    def getValue(self, state):
+    def getValue(self, state: Any) -> float:
         return self.computeValueFromQValues(state)
 
 
 class PacmanQAgent(QLearningAgent):
-    "Exactly the same as QLearningAgent, but with different default parameters"
+    """Q-Learning agent adapted for Pacman with modified default parameters."""
 
-    def __init__(self, epsilon=0.05,gamma=0.8,alpha=0.2, numTraining=0, **args):
+    def __init__(self, epsilon: float=0.05, gamma: float=0.8, alpha: float=0.2, numTraining: int=0, **args) -> None:
         """
-        These default parameters can be changed from the pacman.py command line.
-        For example, to change the exploration rate, try:
-            python pacman.py -p PacmanQLearningAgent -a epsilon=0.1
+        Initialize PacmanQAgent with specific default parameters.
 
-        alpha    - learning rate
-        epsilon  - exploration rate
-        gamma    - discount factor
-        numTraining - number of training episodes, i.e. no learning after these many episodes
+        Args:
+            epsilon: Exploration rate
+            gamma: Discount factor
+            alpha: Learning rate
+            numTraining: Number of training episodes
+            **args: Additional arguments
         """
         args['epsilon'] = epsilon
         args['gamma'] = gamma
@@ -151,11 +202,15 @@ class PacmanQAgent(QLearningAgent):
         self.index = 0  # This is always Pacman
         QLearningAgent.__init__(self, **args)
 
-    def getAction(self, state):
+    def getAction(self, state: Any) -> Any:
         """
-        Simply calls the getAction method of QLearningAgent and then
-        informs parent of action for Pacman.  Do not change or remove this
-        method.
+        Get action from Q-learning agent and inform parent.
+
+        Args:
+            state: Current game state
+
+        Returns:
+            Action: Selected action
         """
         action = QLearningAgent.getAction(self,state)
         self.doAction(state,action)
@@ -164,36 +219,48 @@ class PacmanQAgent(QLearningAgent):
 
 class ApproximateQAgent(PacmanQAgent):
     """
-       ApproximateQLearningAgent
+    Approximate Q-Learning agent using feature-based representation.
 
-       You should only have to overwrite getQValue
-       and update.  All other QLearningAgent functions
-       should work as is.
+    This agent uses linear function approximation to estimate Q-values,
+    representing them as a weighted sum of features. Only getQValue
+    and update methods need to be modified from the base QLearningAgent.
     """
-    def __init__(self, extractor='IdentityExtractor', **args):
+    def __init__(self, extractor: str='IdentityExtractor', **args) -> None:
         self.featExtractor = util.lookup(extractor, globals())()
         PacmanQAgent.__init__(self, **args)
         self.weights = util.Counter()
 
-    def getWeights(self):
+    def getWeights(self) -> util.Counter:
         return self.weights
 
-    def getQValue(self, state, action):
+    def getQValue(self, state: Any, action: Any) -> float:
         """
-          Should return Q(state,action) = w * featureVector
-          where * is the dotProduct operator
+        Compute Q-value as dot product of weights and features.
+
+        Args:
+            state: Current game state
+            action: Action to evaluate
+
+        Returns:
+            float: Approximated Q-value
         """
         "*** YOUR CODE HERE ***"
-        print("approx:\n",self.getWeights() * self.featExtractor.getFeatures(state, action))
+        print(f"approx:\n{self.getWeights() * self.featExtractor.getFeatures(state, action)}")
         return self.getWeights() * self.featExtractor.getFeatures(state, action)
 
-    def update(self, state, action, nextState, reward):
+    def update(self, state: Any, action: Any, nextState: Any, reward: float) -> None:
         """
-           Should update your weights based on transition
+        Update feature weights based on transition.
+
+        Args:
+            state: Starting state
+            action: Action taken
+            nextState: Resulting state
+            reward: Reward received
         """
         "*** YOUR CODE HERE ***"
 
-        def mulAll(counter, mul):
+        def mulAll(counter: util.Counter, mul: float) -> None:
             mul = float(mul)
             for key in counter.keys():
                 counter[key] *= mul
@@ -203,8 +270,13 @@ class ApproximateQAgent(PacmanQAgent):
         mulAll(features, (self.alpha * diff))
         self.weights += features
 
-    def final(self, state):
-        "Called at the end of each game."
+    def final(self, state: Any) -> None:
+        """
+        Called at the end of each game.
+
+        Args:
+            state: Final game state
+        """
         # call the super-class final method
         PacmanQAgent.final(self, state)
 
