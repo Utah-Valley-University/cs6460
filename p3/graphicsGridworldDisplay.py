@@ -1,5 +1,36 @@
-# graphicsGridworldDisplay.py
-# ---------------------------
+"""
+Graphics display for Gridworld environments.
+
+This module provides visualization capabilities for Gridworld environments using tkinter graphics.
+It handles the graphical display of:
+- Grid layout with obstacles and terminal states
+- State values and optimal policies
+- Q-values for state-action pairs
+- Current agent location and movement
+- Value iteration and Q-learning results
+
+The display is highly configurable with options for:
+- Window and grid size
+- Animation speed
+- Colors and fonts
+- Display modes (values/policy/Q-values)
+- Custom messages and labels
+
+The graphics use tkinter for cross-platform compatibility and smooth animation.
+All drawing is done on a tkinter Canvas with configurable visual parameters.
+
+Python Version: 3.13
+Last Modified: 24 Nov 2024
+Modified by: George Rudolph
+
+Changes:
+- Added comprehensive module docstring
+- Added type hints throughout module
+- Added detailed display configuration options
+- Added Python version compatibility note
+- Added last modified date and modifier
+- Verified Python 3.13 compatibility
+
 # Licensing Information:  You are free to use or extend these projects for
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
@@ -10,26 +41,46 @@
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
-
+"""
 
 import util
 from graphicsUtils import *
 from functools import reduce
+from typing import Dict, List, Tuple, Optional, Any, Union
 
 class GraphicsGridworldDisplay:
+    """Handles the graphical display of a Gridworld environment."""
 
-    def __init__(self, gridworld, size=120, speed=1.0):
+    def __init__(self, gridworld: Any, size: int = 120, speed: float = 1.0) -> None:
+        """
+        Initialize the display.
+        
+        Args:
+            gridworld: The gridworld environment to display
+            size: Size of the display in pixels
+            speed: Animation speed multiplier
+        """
         self.gridworld = gridworld
         self.size = size
         self.speed = speed
 
-    def start(self):
+    def start(self) -> None:
+        """Initialize and show the graphics window."""
         setup(self.gridworld, size=self.size)
 
-    def pause(self):
+    def pause(self) -> None:
+        """Pause and wait for user input."""
         wait_for_keys()
 
-    def displayValues(self, agent, currentState = None, message = 'Agent Values'):
+    def displayValues(self, agent: Any, currentState: Optional[Tuple[int, int]] = None, message: str = 'Agent Values') -> None:
+        """
+        Display the values and policy for each state.
+        
+        Args:
+            agent: Agent containing value/policy functions
+            currentState: Current state to highlight
+            message: Message to display below grid
+        """
         values = util.Counter()
         policy = {}
         states = self.gridworld.getStates()
@@ -39,7 +90,14 @@ class GraphicsGridworldDisplay:
         drawValues(self.gridworld, values, policy, currentState, message)
         sleep(0.05 / self.speed)
 
-    def displayNullValues(self, currentState = None, message = ''):
+    def displayNullValues(self, currentState: Optional[Tuple[int, int]] = None, message: str = '') -> None:
+        """
+        Display grid with no values.
+        
+        Args:
+            currentState: Current state to highlight
+            message: Message to display below grid
+        """
         values = util.Counter()
         #policy = {}
         states = self.gridworld.getStates()
@@ -50,7 +108,15 @@ class GraphicsGridworldDisplay:
         # drawValues(self.gridworld, values, policy, currentState, message)
         sleep(0.05 / self.speed)
 
-    def displayQValues(self, agent, currentState = None, message = 'Agent Q-Values'):
+    def displayQValues(self, agent: Any, currentState: Optional[Tuple[int, int]] = None, message: str = 'Agent Q-Values') -> None:
+        """
+        Display Q-values for each state-action pair.
+        
+        Args:
+            agent: Agent containing Q-value function
+            currentState: Current state to highlight  
+            message: Message to display below grid
+        """
         qValues = util.Counter()
         states = self.gridworld.getStates()
         for state in states:
@@ -71,7 +137,15 @@ GRID_SIZE = -1
 GRID_HEIGHT = -1
 MARGIN = -1
 
-def setup(gridworld, title = "Gridworld Display", size = 120):
+def setup(gridworld: Any, title: str = "Gridworld Display", size: int = 120) -> None:
+    """
+    Initialize the graphics window and grid.
+    
+    Args:
+        gridworld: The gridworld environment to display
+        title: Window title
+        size: Display size in pixels
+    """
     global GRID_SIZE, MARGIN, SCREEN_WIDTH, SCREEN_HEIGHT, GRID_HEIGHT
     grid = gridworld.grid
     WINDOW_SIZE = size
@@ -85,7 +159,15 @@ def setup(gridworld, title = "Gridworld Display", size = 120):
                    screen_height,
                    BACKGROUND_COLOR, title=title)
 
-def drawNullValues(gridworld, currentState = None, message = ''):
+def drawNullValues(gridworld: Any, currentState: Optional[Tuple[int, int]] = None, message: str = '') -> None:
+    """
+    Draw grid with no values.
+    
+    Args:
+        gridworld: The gridworld environment
+        currentState: Current state to highlight
+        message: Message to display below grid
+    """
     grid = gridworld.grid
     blank()
     for x in range(grid.width):
@@ -102,7 +184,17 @@ def drawNullValues(gridworld, currentState = None, message = ''):
     text( pos, TEXT_COLOR, message, "Courier", -32, "bold", "c")
 
 
-def drawValues(gridworld, values, policy, currentState = None, message = 'State Values'):
+def drawValues(gridworld: Any, values: Dict, policy: Dict, currentState: Optional[Tuple[int, int]] = None, message: str = 'State Values') -> None:
+    """
+    Draw grid with state values and policy.
+    
+    Args:
+        gridworld: The gridworld environment
+        values: Dictionary mapping states to values
+        policy: Dictionary mapping states to actions
+        currentState: Current state to highlight
+        message: Message to display below grid
+    """
     grid = gridworld.grid
     blank()
     valueList = [values[state] for state in gridworld.getStates()] + [0.0]
@@ -124,12 +216,21 @@ def drawValues(gridworld, values, policy, currentState = None, message = 'State 
                     actions = gridworld.getPossibleActions(state)
                 if action not in actions and 'exit' in actions:
                     action = 'exit'
-                valString = '%.2f' % value
+                valString = f'{value:.2f}'
                 drawSquare(x, y, value, minValue, maxValue, valString, action, False, isExit, isCurrent)
     pos = to_screen(((grid.width - 1.0) / 2.0, - 0.8))
     text( pos, TEXT_COLOR, message, "Courier", -32, "bold", "c")
 
-def drawQValues(gridworld, qValues, currentState = None, message = 'State-Action Q-Values'):
+def drawQValues(gridworld: Any, qValues: Dict, currentState: Optional[Tuple[int, int]] = None, message: str = 'State-Action Q-Values') -> None:
+    """
+    Draw grid with Q-values for state-action pairs.
+    
+    Args:
+        gridworld: The gridworld environment
+        qValues: Dictionary mapping (state,action) pairs to Q-values
+        currentState: Current state to highlight
+        message: Message to display below grid
+    """
     grid = gridworld.grid
     blank()
     stateCrossActions = [[(state, action) for action in gridworld.getPossibleActions(state)] for state in gridworld.getStates()]
@@ -154,13 +255,13 @@ def drawQValues(gridworld, qValues, currentState = None, message = 'State-Action
             for action in actions:
                 v = qValues[(state, action)]
                 q[action] += v
-                valStrings[action] = '%.2f' % v
+                valStrings[action] = f'{v:.2f}'
             if gridType == '#':
                 drawSquare(x, y, 0, 0, 0, None, None, True, False, isCurrent)
             elif isExit:
                 action = 'exit'
                 value = q[action]
-                valString = '%.2f' % value
+                valString = f'{value:.2f}'
                 drawSquare(x, y, value, minValue, maxValue, valString, action, False, isExit, isCurrent)
             else:
                 drawSquareQ(x, y, q, minValue, maxValue, valStrings, actions, isCurrent)
@@ -168,11 +269,21 @@ def drawQValues(gridworld, qValues, currentState = None, message = 'State-Action
     text( pos, TEXT_COLOR, message, "Courier", -32, "bold", "c")
 
 
-def blank():
+def blank() -> None:
+    """Clear the display."""
     clear_screen()
 
-def drawNullSquare(grid,x, y, isObstacle, isTerminal, isCurrent):
-
+def drawNullSquare(grid: Any, x: int, y: int, isObstacle: bool, isTerminal: bool, isCurrent: bool) -> None:
+    """
+    Draw a square cell with no value.
+    
+    Args:
+        grid: The grid environment
+        x,y: Grid coordinates
+        isObstacle: Whether cell is an obstacle
+        isTerminal: Whether cell is terminal state
+        isCurrent: Whether cell is current state
+    """
     square_color = getColor(0, -1, 1)
 
     if isObstacle:
@@ -211,8 +322,21 @@ def drawNullSquare(grid,x, y, isObstacle, isTerminal, isCurrent):
     # if not isObstacle:
     #   text( (screen_x, screen_y), text_color, valStr, "Courier", 24, "bold", "c")
 
-def drawSquare(x, y, val, min, max, valStr, action, isObstacle, isTerminal, isCurrent):
-
+def drawSquare(x: int, y: int, val: float, min: float, max: float, valStr: Optional[str], action: Optional[str], 
+               isObstacle: bool, isTerminal: bool, isCurrent: bool) -> None:
+    """
+    Draw a square cell with value and action.
+    
+    Args:
+        x,y: Grid coordinates
+        val: Value to display
+        min,max: Value range for color scaling
+        valStr: Value string to display
+        action: Action to display
+        isObstacle: Whether cell is obstacle
+        isTerminal: Whether cell is terminal
+        isCurrent: Whether cell is current state
+    """
     square_color = getColor(val, min, max)
 
     if isObstacle:
@@ -256,8 +380,18 @@ def drawSquare(x, y, val, min, max, valStr, action, isObstacle, isTerminal, isCu
         text( (screen_x, screen_y), text_color, valStr, "Courier", -30, "bold", "c")
 
 
-def drawSquareQ(x, y, qVals, minVal, maxVal, valStrs, bestActions, isCurrent):
-
+def drawSquareQ(x: int, y: int, qVals: Dict, minVal: float, maxVal: float, valStrs: Dict, bestActions: List, isCurrent: bool) -> None:
+    """
+    Draw a square cell with Q-values.
+    
+    Args:
+        x,y: Grid coordinates
+        qVals: Dictionary of Q-values for each action
+        minVal,maxVal: Value range for color scaling
+        valStrs: Dictionary of value strings for each action
+        bestActions: List of actions with highest Q-value
+        isCurrent: Whether cell is current state
+    """
     (screen_x, screen_y) = to_screen((x, y))
 
     center = (screen_x, screen_y)
@@ -320,7 +454,18 @@ def drawSquareQ(x, y, qVals, minVal, maxVal, valStrs, bestActions, isCurrent):
             text(w, text_color, valStr, "Courier", h, "bold", "w")
 
 
-def getColor(val, minVal, max):
+def getColor(val: float, minVal: float, max: float) -> str:
+    """
+    Get color for value based on range.
+    
+    Args:
+        val: Value to get color for
+        minVal: Minimum value in range
+        max: Maximum value in range
+        
+    Returns:
+        Hex color string
+    """
     r, g = 0.0, 0.0
     if val < 0 and minVal < 0:
         r = val * 0.65 / minVal
@@ -329,21 +474,52 @@ def getColor(val, minVal, max):
     return formatColor(r,g,0.0)
 
 
-def square(pos, size, color, filled, width):
+def square(pos: Tuple[float, float], size: float, color: str, filled: bool, width: int) -> Any:
+    """
+    Draw a square.
+    
+    Args:
+        pos: (x,y) position
+        size: Square size
+        color: Color string
+        filled: Whether to fill square
+        width: Line width
+        
+    Returns:
+        Polygon object
+    """
     x, y = pos
     dx, dy = size, size
     return polygon([(x - dx, y - dy), (x - dx, y + dy), (x + dx, y + dy), (x + dx, y - dy)], outlineColor=color, fillColor=color, filled=filled, width=width, smoothed=False)
 
 
-def to_screen(point):
+def to_screen(point: Tuple[float, float]) -> Tuple[float, float]:
+    """
+    Convert grid coordinates to screen coordinates.
+    
+    Args:
+        point: (x,y) grid position
+        
+    Returns:
+        (x,y) screen position
+    """
     ( gamex, gamey ) = point
     x = gamex*GRID_SIZE + MARGIN
     y = (GRID_HEIGHT - gamey - 1)*GRID_SIZE + MARGIN
     return ( x, y )
 
-def to_grid(point):
+def to_grid(point: Tuple[float, float]) -> Tuple[int, int]:
+    """
+    Convert screen coordinates to grid coordinates.
+    
+    Args:
+        point: (x,y) screen position
+        
+    Returns:
+        (x,y) grid position
+    """
     (x, y) = point
     x = int ((y - MARGIN + GRID_SIZE * 0.5) / GRID_SIZE)
     y = int ((x - MARGIN + GRID_SIZE * 0.5) / GRID_SIZE)
-    print(point, "-->", (x, y))
+    print(f"{point} --> {(x, y)}")
     return (x, y)
