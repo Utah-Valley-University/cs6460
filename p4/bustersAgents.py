@@ -171,17 +171,4 @@ class GreedyBustersAgent(BustersAgent):
             if livingGhosts[i + 1]
         ]
         "*** YOUR CODE HERE ***"
-        M = self.distancer.getDistance
-        S = Actions.getSuccessor
-
-        # find location w/ min distance
-        locations = [
-            (M(pacmanPosition, d.argMax()), d.argMax())
-            for d in livingGhostPositionDistributions
-        ]
-        closest_distance, location = min(locations)
-
-        # find the action that gets us to the min location
-        actions = [(M(S(pacmanPosition, move), location), move) for move in legal]
-        closest_distance, action = min(actions)
-        return action
+        raiseNotDefined()
