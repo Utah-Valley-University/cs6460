@@ -70,12 +70,25 @@ def buyLotsOfFruit(order_list: OrderList) -> Optional[float]:
         >>> buyLotsOfFruit([('apples', 2.0), ('invalid_fruit', 3.0)])
         None
     """
-    total_cost: float = 0.0
+    print(order_list)
     
-    "*** YOUR CODE HERE ***"
-    
-    return total_cost
+    from functools import reduce
 
+    def item_cost(order_item):
+        fruit, pounds = order_item
+        return FRUIT_PRICES[fruit] * pounds if fruit in FRUIT_PRICES else None
+
+
+    item_costs = list(map(item_cost, order_list))
+    print(item_costs)
+    if any(True for _ in filter(lambda x : x == None, item_costs)):
+        print("one of the fruits doesn't exist")
+        return None
+    sum = reduce(lambda x, y: x + y, map(item_cost, order_list))
+    
+    return sum
+
+assert buyLotsOfFruit([('apples', 2.0), ('pears', 3.0), ('not_a_real_fruit', 4.0)]) == None
 
 def main() -> None:
     """Run a test case for the buyLotsOfFruit function."""

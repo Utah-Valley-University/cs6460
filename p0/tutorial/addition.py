@@ -57,5 +57,5 @@ def add(a: Number, b: Number) -> Number:
         >>> add(2.0, 3.0)
         5.0
     """
-    "*** YOUR CODE HERE ***"
-    return 0
+    print(f"Passed a = {a} and b = {b}, returning a + b = {a+b}")
+    return a + b
