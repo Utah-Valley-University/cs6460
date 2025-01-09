@@ -69,8 +69,9 @@ def shopSmart(order_list: OrderList, fruit_shops: ShopList) -> Optional[FruitSho
         >>> best_shop.getName()
         'shop1'
     """
-    "*** YOUR CODE HERE ***"
-    return None
+    shop_prices = [(shop, shop.getPriceOfOrder(order_list)) for shop in fruit_shops]
+    print(shop_prices)
+    return min(shop_prices, key = lambda tuple: tuple[1])[0]
 
 
 def main() -> None:
