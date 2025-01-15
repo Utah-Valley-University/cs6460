@@ -488,7 +488,7 @@ def parseAgentArgs(str):
         opts[key] = val
     return opts
 
-def readCommand( argv ):
+def readCommand(argv):
     """
     Processes the command used to run pacman from the command line.
     """
@@ -539,27 +539,49 @@ def readCommand( argv ):
     parser.add_option('--timeout', dest='timeout', type='int',
                       help=default('Maximum length of time an agent can spend computing in a single game'), default=30)
 
-    options, otherjunk = parser.parse_args(argv)
-    if len(otherjunk) != 0:
-        raise Exception('Command line input not understood: ' + str(otherjunk))
+    try:
+        options, otherjunk = parser.parse_args(argv)
+        if len(otherjunk) != 0:
+            raise Exception('Command line input not understood: ' + str(otherjunk))
+    except Exception as e:
+        print(f"Error parsing command line: {e}")
+        # Use default values if there's an error
+        options, _ = parser.parse_args([])  # Parse with empty args to get defaults
+    
     args = dict()
 
     # Fix the random seed
-    if options.fixRandomSeed: random.seed('cs4470')
+    if options.fixRandomSeed: 
+        random.seed('cs4470')
 
     # Choose a layout
-    args['layout'] = layout.getLayout( options.layout )
-    if args['layout'] == None: raise Exception("The layout " + options.layout + " cannot be found")
+    try:
+        args['layout'] = layout.getLayout(options.layout)
+        if args['layout'] is None: 
+            raise Exception(f"The layout {options.layout} cannot be found")
+    except Exception as e:
+        print(f"Error loading layout: {e}")
+        # Fall back to mediumClassic if there's an error
+        args['layout'] = layout.getLayout('mediumClassic')
 
     # Choose a Pacman agent
-    noKeyboard = options.gameToReplay == None and (options.textGraphics or options.quietGraphics)
-    pacmanType = loadAgent(options.pacman, noKeyboard)
-    agentOpts = parseAgentArgs(options.agentArgs)
-    if options.numTraining > 0:
-        args['numTraining'] = options.numTraining
-        if 'numTraining' not in agentOpts: agentOpts['numTraining'] = options.numTraining
-    pacman = pacmanType(**agentOpts) # Instantiate Pacman with agentArgs
-    args['pacman'] = pacman
+    try:
+        noKeyboard = options.gameToReplay is None and (options.textGraphics or options.quietGraphics)
+        pacmanType = loadAgent(options.pacman, noKeyboard)
+        agentOpts = parseAgentArgs(options.agentArgs)
+        
+        if options.numTraining > 0:
+            args['numTraining'] = options.numTraining
+            if 'numTraining' not in agentOpts: 
+                agentOpts['numTraining'] = options.numTraining
+        
+        pacman = pacmanType(**agentOpts)  # Instantiate Pacman with agentArgs
+        args['pacman'] = pacman
+    except Exception as e:
+        print(f"Error loading Pacman agent: {e}")
+        # Fall back to KeyboardAgent if there's an error
+        from keyboardAgents import KeyboardAgent
+        args['pacman'] = KeyboardAgent()
 
     # Don't display training games
     if 'numTrain' in agentOpts:
@@ -567,35 +589,52 @@ def readCommand( argv ):
         options.numIgnore = int(agentOpts['numTrain'])
 
     # Choose a ghost agent
-    ghostType = loadAgent(options.ghost, noKeyboard)
-    args['ghosts'] = [ghostType( i+1 ) for i in range( options.numGhosts )]
+    try:
+        ghostType = loadAgent(options.ghost, noKeyboard)
+        args['ghosts'] = [ghostType(i+1) for i in range(options.numGhosts)]
+    except Exception as e:
+        print(f"Error loading ghost agents: {e}")
+        # Fall back to RandomGhost if there's an error
+        from ghostAgents import RandomGhost
+        args['ghosts'] = [RandomGhost(i+1) for i in range(4)]  # Default to 4 ghosts
 
     # Choose a display format
-    if options.quietGraphics:
+    try:
+        if options.quietGraphics:
+            import textDisplay
+            args['display'] = textDisplay.NullGraphics()
+        elif options.textGraphics:
+            import textDisplay
+            textDisplay.SLEEP_TIME = options.frameTime
+            args['display'] = textDisplay.PacmanGraphics()
+        else:
+            import graphicsDisplay
+            args['display'] = graphicsDisplay.PacmanGraphics(options.zoom, frameTime=options.frameTime)
+    except Exception as e:
+        print(f"Error setting up display: {e}")
+        # Fall back to text display if there's an error
         import textDisplay
-        args['display'] = textDisplay.NullGraphics()
-    elif options.textGraphics:
-        import textDisplay
-        textDisplay.SLEEP_TIME = options.frameTime
         args['display'] = textDisplay.PacmanGraphics()
-    else:
-        import graphicsDisplay
-        args['display'] = graphicsDisplay.PacmanGraphics(options.zoom, frameTime = options.frameTime)
+
+    # Set remaining arguments
     args['numGames'] = options.numGames
     args['record'] = options.record
     args['catchExceptions'] = options.catchExceptions
     args['timeout'] = options.timeout
 
     # Special case: recorded games don't use the runGames method or args structure
-    if options.gameToReplay != None:
+    if options.gameToReplay is not None:
         print('Replaying recorded game %s.' % options.gameToReplay)
-        import pickle
-        f = open(options.gameToReplay, 'rb')
-        try: recorded = pickle.load(f)
-        finally: f.close()
-        recorded['display'] = args['display']
-        replayGame(**recorded)
-        sys.exit(0)
+        try:
+            import pickle
+            with open(options.gameToReplay, 'rb') as f:
+                recorded = pickle.load(f)
+            recorded['display'] = args['display']
+            replayGame(**recorded)
+            sys.exit(0)
+        except Exception as e:
+            print(f"Error replaying game: {e}")
+            # Continue with normal game if replay fails
 
     return args
 
@@ -607,6 +646,13 @@ def loadAgent(pacman: str, nographics: bool) -> Any:
         pacman: Name of agent class to load
         nographics: Whether graphics are disabled
     """
+    # Handle keyboard agent specially
+    if pacman == "KeyboardAgent":
+        if nographics:
+            raise Exception('Using the keyboard requires graphics (not text display)')
+        from keyboardAgents import KeyboardAgent
+        return KeyboardAgent
+        
     # Try direct import first for common agents
     if pacman == "RandomGhost":
         from ghostAgents import RandomGhost
