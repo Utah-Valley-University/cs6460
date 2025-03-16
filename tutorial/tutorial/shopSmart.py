@@ -69,8 +69,20 @@ def shopSmart(order_list: OrderList, fruit_shops: ShopList) -> Optional[FruitSho
         >>> best_shop.getName()
         'shop1'
     """
-    "*** YOUR CODE HERE ***"
-    return None
+    # ** ADD YOUR CODE HERE **
+    if not fruit_shops:
+        return None
+    
+    best_shop = None
+    lowest_price = float('inf')
+    
+    for shop in fruit_shops:
+        price = shop.getPriceOfOrder(order_list)
+        if price < lowest_price:
+            lowest_price = price
+            best_shop = shop
+    
+    return best_shop
 
 
 def main() -> None:
@@ -82,3 +94,15 @@ def main() -> None:
     dir2: PriceList = {'apples': 1.0, 'oranges': 5.0}
     shop2 = FruitShop('shop2', dir2)
     shops: ShopList = [shop1, shop2]
+    
+    best_shop = shopSmart(orders, shops)
+    print(f"For orders: {orders} best shop is {best_shop.getName()}")
+    
+    # Test case 2
+    orders = [('apples', 3.0)]
+    best_shop = shopSmart(orders, shops)
+    print(f"For orders: {orders} best shop is {best_shop.getName()}")
+
+
+if __name__ == '__main__':
+    main()
