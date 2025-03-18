@@ -71,18 +71,7 @@ def buyLotsOfFruit(order_list: OrderList) -> Optional[float]:
         None
     """
     # ** ADD YOUR CODE HERE **
-    total_cost: float = 0.0
     
-    for fruit_name, pounds in order_list:
-        if fruit_name not in FRUIT_PRICES:
-            print(f"Error: {fruit_name} is not in the price list")
-            return None
-        
-        price_per_pound = FRUIT_PRICES[fruit_name]
-        total_cost += price_per_pound * pounds
-    
-    return total_cost
-
 
 def main() -> None:
     """Run a test case for the buyLotsOfFruit function."""

@@ -70,19 +70,7 @@ def shopSmart(order_list: OrderList, fruit_shops: ShopList) -> Optional[FruitSho
         'shop1'
     """
     # ** ADD YOUR CODE HERE **
-    if not fruit_shops:
-        return None
     
-    best_shop = None
-    lowest_price = float('inf')
-    
-    for shop in fruit_shops:
-        price = shop.getPriceOfOrder(order_list)
-        if price < lowest_price:
-            lowest_price = price
-            best_shop = shop
-    
-    return best_shop
 
 
 def main() -> None:
