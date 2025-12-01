@@ -1,0 +1,313 @@
+\DocumentMetadata{testphase=phase-III}
+% Toggle solutions: comment out \printanswers to hide solutions and produce a student version.
+\documentclass[11pt,addpoints]{exam}
+
+% --- Packages ---
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usepackage{tcolorbox}
+
+% PDF Accessibility: Enable tagged PDF for ADA compliance
+\usepackage{hyperref}
+\hypersetup{
+    pdftitle={CS 6460 Homework 3},
+    pdfauthor={CS 6460},
+    colorlinks=false,
+    pdfborder={0 0 0},
+    pdfstartview={FitH},
+    unicode=true
+}
+
+% Set document language for accessibility
+\usepackage[english]{babel}
+
+% --- Header/Footer ---
+\pointsinrightmargin
+\bracketedpoints
+%% \printanswers % Comment this line to hide solutions
+
+% Fix tagpdf structure issues when solutions are hidden
+\ifprintanswers
+\else
+  \usepackage{etoolbox}
+  % Disable automatic paragraph tagging inside solution environments
+  \AtBeginEnvironment{solution}{\tagpdfsetup{para/tag=false}}
+\fi
+
+% Manually define total points if needed
+%\makeatletter
+%\renewcommand{\totalpoints}{100}
+%\makeatother
+
+% Conditional header based on whether solutions are shown
+\ifprintanswers
+  \header{CS 6460: Artificial Intelligence}{Key}{Fall 2025}
+\else
+  \header{CS 6460: Artificial Intelligence}{ - }{Fall 2025}
+\fi
+\footer{}{}{\thepage}
+
+\begin{document}
+
+\begin{center}
+  \tagstructbegin{tag=H1}
+  \tagmcbegin{tag=H1}
+  {\Large \textbf{Homework 3}}\\[6pt]
+  \tagmcend
+  \tagstructend
+\end{center}
+\vspace{1em}
+
+\begin{tcolorbox}[colback=gray!10, colframe=gray!50!black, title=\textbf{Instructions}]
+  \textit{Points: Please see the points for each problem.}\\
+  \textit{Submission: Submit completed homework as a PDF file. Handwritten work or photos of handwritten work must be neat and legible.}
+\end{tcolorbox}
+
+\vspace{0.5em}
+
+\begin{tcolorbox}[colback=white, colframe=black, title=\textbf{Points Summary}]
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+\textbf{Question Number} & \textbf{Points Possible} & \textbf{Points Earned} \\
+\midrule
+1 & 1 & \rule{1.5cm}{0.4pt} \\
+2 & 1 & \rule{1.5cm}{0.4pt} \\
+3 & 1 & \rule{1.5cm}{0.4pt} \\
+4 & 1 & \rule{1.5cm}{0.4pt} \\
+5 & 1 & \rule{1.5cm}{0.4pt} \\
+6 & 1 & \rule{1.5cm}{0.4pt} \\
+7 & 1 & \rule{1.5cm}{0.4pt} \\
+8 & 1 & \rule{1.5cm}{0.4pt} \\
+9 & 3 & \rule{1.5cm}{0.4pt} \\
+10 & 3 & \rule{1.5cm}{0.4pt} \\
+11 & 3 & \rule{1.5cm}{0.4pt} \\
+12 & 3 & \rule{1.5cm}{0.4pt} \\
+\midrule
+\textbf{Total} & \textbf{20} & \rule{1.5cm}{0.4pt} \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{tcolorbox}
+
+\vspace{0.5em}
+
+% ============================
+\tagstructbegin{tag=H2}
+\tagmcbegin{tag=H2}
+\section{Bayes' Nets Representation}
+\tagmcend
+\tagstructend
+
+\tagstructbegin{tag=H3}
+\tagmcbegin{tag=H3}
+\textbf{Graph Structure: Conditional Independence}
+\tagmcend
+\tagstructend
+
+Consider the Bayes' net given below.
+
+\begin{center}
+  \begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\linewidth]{media/image1.png}
+    \caption{Bayes' net graph structure showing nodes A through I and their directed dependencies}
+  \end{figure}
+\end{center}
+
+Recall:
+\begin{itemize}
+  \item $X \perp\!\!\!\perp Y$ reads as ``$X$ is independent of $Y$''.
+  \item $X \perp\!\!\!\perp Y \mid \{Z, W\}$ reads as ``$X$ is independent of $Y$ given $Z$ and $W$''.
+\end{itemize}
+
+For each statement below, indicate whether it is True or False. (1 point each)
+
+\begin{questions}
+
+  \question[1] \textbf{True} \quad \textbf{False}\\[2pt]
+  It is guaranteed that $A \perp\!\!\!\perp B$.
+  \begin{solution}
+    \textbf{Answer:} False
+    
+    There is a direct edge $A \rightarrow B$ in the Bayes' net. While $B$ depends on $A$ (since $A$ is a parent of $B$), independence is symmetric: $A \perp\!\!\!\perp B$ means both $P(A|B) = P(A)$ and $P(B|A) = P(B)$. Since there is an active path between $A$ and $B$ (the direct edge), they are not independent. Therefore, this statement is \textbf{False}.
+  \end{solution}
+  
+  \question[1] \textbf{True} \quad \textbf{False}\\[2pt]
+  It is guaranteed that $A \perp\!\!\!\perp C$.
+  \begin{solution}
+    \textbf{Answer:} True
+    
+    The only path between $A$ and $C$ is: $A \rightarrow B \rightarrow E \leftarrow F \leftarrow C$. Node $E$ is a collider on this path. Since $E$ is not observed, the collider blocks the path. With no active paths between $A$ and $C$, they are independent. Therefore, this statement is \textbf{True}.
+  \end{solution}
+  
+  \question[1] \textbf{True} \quad \textbf{False}\\[2pt]
+  It is guaranteed that $A \perp\!\!\!\perp D \mid E$.
+  \begin{solution}
+    \textbf{Answer:} False
+    
+    There is a path: $A \rightarrow B \rightarrow E \leftarrow D$. Node $E$ is a collider on this path. When we condition on $E$ (observe $E$), the collider becomes activated, making the path active. Therefore, $A$ and $D$ are not independent given $E$. This statement is \textbf{False}.
+  \end{solution}
+  
+  \question[1] \textbf{True} \quad \textbf{False}\\[2pt]
+  It is guaranteed that $A \perp\!\!\!\perp I \mid E$.
+  \begin{solution}
+    \textbf{Answer:} True
+    
+    The path between $A$ and $I$ is: $A \rightarrow B \rightarrow E \rightarrow I$. Node $E$ is on this chain. When we condition on $E$ (observe $E$), nodes on a chain block the path. Since $E$ blocks the path and there are no other active paths between $A$ and $I$ given $E$, they are independent. Therefore, this statement is \textbf{True}.
+  \end{solution}
+  
+  \question[1] \textbf{True} \quad \textbf{False}\\[2pt]
+  It is guaranteed that $B \perp\!\!\!\perp C \mid I$.
+  \begin{solution}
+    \textbf{Answer:} False
+    
+    There is a path: $B \rightarrow E \rightarrow I \leftarrow H \leftarrow E \leftarrow F \leftarrow C$. Node $I$ is a collider on this path. When we condition on $I$ (observe $I$), the collider becomes activated, making the path active. Therefore, $B$ and $C$ are not independent given $I$. This statement is \textbf{False}.
+    
+    Alternatively, we can see: $B \rightarrow E \rightarrow H \rightarrow I$ and $C \rightarrow F \rightarrow E \rightarrow H \rightarrow I$. When $I$ is observed, it activates the collider, creating an active path through $E$ and $H$.
+  \end{solution}
+  
+  \question[1] \textbf{True} \quad \textbf{False}\\[2pt]
+  It is guaranteed that $F \perp\!\!\!\perp A \mid H$.
+  \begin{solution}
+    \textbf{Answer:} True
+    
+    The path between $F$ and $A$ is: $F \rightarrow E \rightarrow H \leftarrow G \leftarrow D$ (but this doesn't reach $A$). Let's trace more carefully: $F \rightarrow E \leftarrow B \leftarrow A$. On this path, $E$ is a collider. When we condition on $H$ but not on $E$, the collider at $E$ remains blocked. There is no active path between $F$ and $A$ given $H$. Therefore, $F$ and $A$ are independent given $H$. This statement is \textbf{True}.
+  \end{solution}
+  
+  \question[1] \textbf{True} \quad \textbf{False}\\[2pt]
+  It is guaranteed that $D \perp\!\!\!\perp I \mid \{E,G\}$.
+  \begin{solution}
+    \textbf{Answer:} True
+    
+    The paths between $D$ and $I$ are:
+    \begin{itemize}
+      \item $D \rightarrow E \rightarrow I$: $E$ is on this chain, so conditioning on $E$ blocks it.
+      \item $D \rightarrow E \rightarrow H \rightarrow I$: $E$ is on this chain, so conditioning on $E$ blocks it.
+      \item $D \rightarrow G \rightarrow H \rightarrow I$: $G$ is on this chain, so conditioning on $G$ blocks it.
+      \item $D \rightarrow E \rightarrow H \leftarrow G$: $H$ is a collider on this path. Since we condition on $G$ but not on $H$, the collider remains blocked.
+    \end{itemize}
+    All paths between $D$ and $I$ are blocked when conditioning on $\{E,G\}$. Therefore, $D$ and $I$ are independent given $\{E,G\}$. This statement is \textbf{True}.
+  \end{solution}
+  
+  \question[1] \textbf{True} \quad \textbf{False}\\[2pt]
+  It is guaranteed that $C \perp\!\!\!\perp H \mid G$.
+  \begin{solution}
+    \textbf{Answer:} True
+    
+    The path between $C$ and $H$ is: $C \rightarrow F \rightarrow E \rightarrow H \leftarrow G$. On this path, $H$ is a collider. When we condition on $G$ but not on $H$, the collider at $H$ remains blocked. There is no active path between $C$ and $H$ given $G$. Therefore, $C$ and $H$ are independent given $G$. This statement is \textbf{True}.
+  \end{solution}
+
+\end{questions}
+
+% ============================
+\newpage
+\tagstructbegin{tag=H2}
+\tagmcbegin{tag=H2}
+\section{Bayes' Net Reasoning}
+\tagmcend
+\tagstructend
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.95\linewidth]{media/image2.png}
+  \caption{Bayes' net for disease testing with disease D and tests A and B, showing conditional probability tables}
+\end{figure}
+
+\begin{questions}
+
+  \question[3] What is the probability of having disease D and getting a positive result on test A? \quad $P(+d, +a) =$
+  \begin{solution}
+    To find the joint probability $P(+d, +a)$, we use the chain rule for Bayes' nets. Since test A depends on disease D in the Bayes' net structure, we can factor this as:
+    \[
+    P(+d, +a) = P(+d) \times P(+a \mid +d)
+    \]
+    
+    This follows from the chain rule: $P(X, Y) = P(X) \times P(Y \mid X)$ when $X$ is a parent of $Y$ in the Bayes' net.
+    
+    \textbf{Calculation:}
+    \begin{itemize}
+      \item $P(+d)$ is the prior probability of having the disease (given in the CPT for node D)
+      \item $P(+a \mid +d)$ is the conditional probability of a positive test A result given the disease is present (given in the CPT for node A)
+    \end{itemize}
+    
+    Multiply these two values from the conditional probability tables to get the final answer.
+  \end{solution}
+
+  \question[3] What is the probability of not having disease D and getting a positive result on test A? \quad $P(-d, +a) =$
+  \begin{solution}
+    This represents a false positive case: the test is positive even though the disease is not present. Using the chain rule:
+    \[
+    P(-d, +a) = P(-d) \times P(+a \mid -d)
+    \]
+    
+    Since $P(-d) = 1 - P(+d)$, we can also write:
+    \[
+    P(-d, +a) = (1 - P(+d)) \times P(+a \mid -d)
+    \]
+    
+    \textbf{Explanation:}
+    \begin{itemize}
+      \item $P(-d)$ is the prior probability of not having the disease, which equals $1 - P(+d)$
+      \item $P(+a \mid -d)$ is the conditional probability of a positive test A result given the disease is absent (the false positive rate, given in the CPT for node A)
+    \end{itemize}
+    
+    Multiply these values to get the probability of a false positive result.
+  \end{solution}
+
+  \question[3] What is the probability of having disease D given a positive result on test A? \quad $P(+d | +a) =$
+  \begin{solution}
+    This is a conditional probability that requires Bayes' rule. We want to find $P(+d \mid +a)$.
+    
+    Using Bayes' rule:
+    \[
+    P(+d \mid +a) = \frac{P(+a \mid +d) \times P(+d)}{P(+a)}
+    \]
+    
+    The denominator $P(+a)$ can be found using the law of total probability:
+    \[
+    P(+a) = P(+a, +d) + P(+a, -d) = P(+a \mid +d) \times P(+d) + P(+a \mid -d) \times P(-d)
+    \]
+    
+    \textbf{Step-by-step calculation:}
+    \begin{enumerate}
+      \item Calculate $P(+a, +d) = P(+a \mid +d) \times P(+d)$ (from question 9)
+      \item Calculate $P(+a, -d) = P(+a \mid -d) \times P(-d)$ (from question 10)
+      \item Calculate $P(+a) = P(+a, +d) + P(+a, -d)$
+      \item Apply Bayes' rule: $P(+d \mid +a) = \frac{P(+a, +d)}{P(+a)}$
+    \end{enumerate}
+    
+    This gives the posterior probability of having the disease after observing a positive test result.
+  \end{solution}
+
+  \question[3] What is the probability of having disease D given a positive result on test B? \quad $P(+d | +b) =$
+  \begin{solution}
+    Similar to the previous question, we use Bayes' rule to find $P(+d \mid +b)$:
+    \[
+    P(+d \mid +b) = \frac{P(+b \mid +d) \times P(+d)}{P(+b)}
+    \]
+    
+    The denominator $P(+b)$ is calculated using the law of total probability:
+    \[
+    P(+b) = P(+b, +d) + P(+b, -d) = P(+b \mid +d) \times P(+d) + P(+b \mid -d) \times P(-d)
+    \]
+    
+    \textbf{Step-by-step calculation:}
+    \begin{enumerate}
+      \item Calculate $P(+b, +d) = P(+b \mid +d) \times P(+d)$ using the CPT values
+      \item Calculate $P(+b, -d) = P(+b \mid -d) \times P(-d) = P(+b \mid -d) \times (1 - P(+d))$
+      \item Calculate $P(+b) = P(+b, +d) + P(+b, -d)$
+      \item Apply Bayes' rule: $P(+d \mid +b) = \frac{P(+b, +d)}{P(+b)}$
+    \end{enumerate}
+    
+    This gives the posterior probability of having the disease after observing a positive test B result. Note that this may differ from $P(+d \mid +a)$ if tests A and B have different sensitivity and specificity values.
+  \end{solution}
+
+\end{questions}
+
+\end{document}
+

@@ -1,4 +1,4 @@
-
+\DocumentMetadata{testphase=phase-III}
 % Toggle solutions: comment out \printanswers to hide solutions and produce a student version.
 \documentclass[11pt,addpoints]{exam}
 
@@ -6,18 +6,28 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx}
-\usepackage{caption}
 \usepackage{booktabs}
 \usepackage{enumitem}
 \usepackage{tikz}
 \usepackage{tcolorbox}
+
+% PDF Accessibility: Enable tagged PDF for ADA compliance
 \usepackage{hyperref}
-\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue}
+\hypersetup{
+    pdfusetitle=true,
+    colorlinks=false,
+    pdfborder={0 0 0},
+    pdfstartview={FitH},
+    unicode=true
+}
+
+% Set document language for accessibility
+\usepackage[english]{babel}
 
 % --- Header/Footer ---
 \pointsinrightmargin
 \bracketedpoints
-%\printanswers % Comment this line to hide solutions
+\printanswers % Comment this line to hide solutions
 
 % Manually define total points (sum of all parts: 4+4+4+4+4+3+3 = 26)
 % This will override the automatic calculation from the exam class
@@ -36,8 +46,11 @@
 \begin{document}
 
 \begin{center}
-  {\Large \textbf{Homework 2}}\\[6pt]
-
+  \tagstructbegin{tag=H1}
+  \tagmcbegin{tag=H1}
+  {\Large \textbf{Homework 2}}
+  \tagmcend
+  \tagstructend
 \end{center}
 \vspace{1em}
 
@@ -79,8 +92,8 @@
   Consider the minimax tree shown below for parts (a) and (b).
 
   \begin{center}
-    \includegraphics[width=0.6\linewidth]{images/problem1_minimax_tree.png}
-    \captionof{figure}{Minimax tree for Question 1.}
+    \includegraphics[width=0.6\linewidth,alt={Minimax tree for Question 1 showing nodes A (root, MAX), B and C (MIN nodes), D, E, F (MAX nodes), and leaf nodes with values 12, 15, 6, 21, 5, 10, 1, 19, and 2.}]{images/problem1_minimax_tree.png}\\
+    \textbf{Figure 1:} Minimax tree for Question 1.
   \end{center}
 
   \begin{parts}
@@ -96,11 +109,13 @@
         A \,=\, \max\{B, C, 2\} & = 12.
       \end{align*}
       Thus, the root value is $A=12$.
+    \par
     \end{solution}
 
     \part[4] Cross off the nodes that are pruned by $\alpha$-$\beta$ pruning. Assume standard left-to-right traversal. If a non-terminal state ($A,B,C,D,E,$ or $F$) is pruned, cross off the entire subtree.
     \begin{solution}
       With left-to-right traversal, the leaf with value $6$ and the leaf with value $21$ under $D$ are pruned, and the entire subtree under $F$ is pruned.
+    \par
     \end{solution}
   \end{parts}
 
@@ -110,8 +125,8 @@
   The game ends when the dot is eaten.
 
   \begin{center}
-    \includegraphics[width=0.25\linewidth]{images/problem2_grid.png}
-    \captionof{figure}{Grid for Question 2.}
+    \includegraphics[width=0.25\linewidth,alt={Grid for Question 2 showing a 2x3 grid with states labeled A (top-left), B (top-middle), C (top-right), D (bottom-left), E (bottom-middle), and F (bottom-right, containing a food pellet).}]{images/problem2_grid.png}\\
+    \textbf{Figure 2:} Grid for Question 2.
   \end{center}
 
   \begin{parts}
@@ -148,6 +163,7 @@
           \bottomrule
         \end{tabular}
       \end{center}
+    \par
     \end{solution}
 
     \part[4] What is the optimal value for the upper-left corner state $A$?
@@ -244,11 +260,13 @@
       Since $V^5(s) = V^4(s)$ for all states $s$, the algorithm has converged. We stop value iteration when there is no change in any state value between consecutive iterations, which indicates we have reached the optimal values $V^*(s)$.
 
       The optimal value $V^*(A) = 0.375$ is reached at iteration $k=4$. This represents the expected discounted reward from state $A$ following the optimal policy, where the discount factor $\gamma = 0.5$ reduces the value of future rewards.
+    \par
     \end{solution}
 
     \part[4] Using value iteration initialized with $V^0(\cdot) = 0$, at which iteration $k$ does $V^k(A)$ first equal $V^*(A)$?
     \begin{solution}
       At iteration $k=4$. Iteration $k=5$ matches iteration $k=4$.
+    \par
     \end{solution}
   \end{parts}
 
@@ -265,8 +283,9 @@
         \item \textbf{Stability}: Vanilla policy gradients can make large, destructive policy updates that degrade performance.
         \item \textbf{On-policy data requirement}: Many RL algorithms require on-policy data, making sample reuse difficult and inefficient.
         \item \textbf{Continuous action spaces}: Value-based methods struggle with continuous actions, while policy gradients handle them naturally.
-      \end{itemize}
+      \end{itemize}\par
       \textit{Note: Stating any 3 of these is sufficient for full credit.}
+    \par
     \end{solution}
 
     \part[3] How do they improve on previous RL algorithms?
@@ -279,8 +298,9 @@
         \item \textbf{Natural continuous actions}: Policy gradients parameterize policies directly, making them well-suited for continuous action spaces without discretization.
         \item \textbf{Reduced variance}: PPO's clipped objective and trust region approach reduce variance compared to standard policy gradient methods.
         \item \textbf{Stable learning}: The clipping mechanism ensures policy updates stay within a trust region, preventing performance collapse that can occur with large updates.
-      \end{itemize}
+      \end{itemize}\par
       \textit{Note: Stating any 3 of these is sufficient for full credit.}
+    \par
     \end{solution}
   \end{parts}
 

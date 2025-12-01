@@ -1,24 +1,33 @@
-\DocumentMetadata{testphase=phase-III}
-\documentclass[addpoints]{exam}
-\usepackage[utf8]{inputenc}
-\usepackage{amsmath}
-\usepackage{graphicx}
-\usepackage{ifthen}
-\usepackage{booktabs}
+% \DocumentMetadata{testphase=phase-III}
+\documentclass[11pt,addpoints]{exam}
 
-% PDF Accessibility: Enable tagged PDF for ADA compliance
+% --- Packages ---
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usepackage{tcolorbox}
+\usepackage{ifthen}
+
+% PDF Accessibility
 \usepackage{hyperref}
 \hypersetup{
-    pdfusetitle=true,
+    pdftitle={CS 6460 Homework 1},
+    pdfauthor={CS 6460},
     colorlinks=false,
     pdfborder={0 0 0},
     pdfstartview={FitH},
     unicode=true
 }
-% \usepackage[tagged,highstructure]{accessibility} % Removing this as it conflicts with modern tagpdf/phase-III
 
-% Set document language for accessibility
+% Set document language
 \usepackage[english]{babel}
+
+% --- Header/Footer ---
+\pointsinrightmargin
+\bracketedpoints
 
 % Toggle for key
 % Change to 'true' for key version, 'false' for student version
@@ -27,104 +36,125 @@
 
 \ifthenelse{\boolean{key}}{
     \printanswers
-    \title{Homework 1 - Solution Key}
-    \pagestyle{head}
-    \firstpageheader{CS6460}{Homework 1 - KEY}{Spring 2025}
-    \runningheader{CS6460}{Homework 1 - KEY}{Spring 2025}
-}{
-    \title{Homework 1}
-    \pagestyle{head}
-    \firstpageheader{CS6460}{Homework 1}{Spring 2025}
-    \runningheader{CS6460}{Homework 1}{Spring 2025}
-}
+}{}
 
-\author{CS6460}
-\date{Spring 2025}
+% Conditional header
+\ifprintanswers
+  \header{CS 6460: Artificial Intelligence}{Key}{Spring 2026}
+\else
+  \header{CS 6460: Artificial Intelligence}{ }{Spring 2026}
+\fi
+\footer{}{}{\thepage}
 
 \begin{document}
 
-\maketitle
-
 \begin{center}
-    \fbox{\fbox{\parbox{5.5in}{\centering
-        Answer the questions in the spaces provided. If you run out of room for an answer,
-        continue on the back of the page.
-    }}}
+  {\Large \textbf{Homework 1}}\\[6pt]
 \end{center}
+\vspace{1em}
 
-\vspace{0.1in}
-\makebox[\textwidth]{Name:\enspace\hrulefill}
+\begin{tcolorbox}[colback=gray!10, colframe=gray!50!black, title=\textbf{Instructions}]
+  \textit{Points: Please see the points for each problem.}\\
+  \textit{Submission: Submit completed homework as a PDF file. Handwritten work or photos of handwritten work must be neat and legible.}
+\end{tcolorbox}
+
+\vspace{0.5em}
+
+\begin{tcolorbox}[colback=white, colframe=black, title=\textbf{Points Summary}]
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+\textbf{Question Number} & \textbf{Points Possible} & \textbf{Points Earned} \\
+\midrule
+1 & 3 & \rule{1.5cm}{0.4pt} \\
+2 & 3 & \rule{1.5cm}{0.4pt} \\
+3 & 3 & \rule{1.5cm}{0.4pt} \\
+4 & 3 & \rule{1.5cm}{0.4pt} \\
+5 & 3 & \rule{1.5cm}{0.4pt} \\
+6 & 3 & \rule{1.5cm}{0.4pt} \\
+7 & 3 & \rule{1.5cm}{0.4pt} \\
+8 & 3 & \rule{1.5cm}{0.4pt} \\
+9 & 3 & \rule{1.5cm}{0.4pt} \\
+\midrule
+\textbf{Total} & \textbf{27} & \rule{1.5cm}{0.4pt} \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{tcolorbox}
+
+\vspace{0.5em}
 
 \begin{questions}
 
-\question
+\question[3]
 It is a training day for a swarm of robotic miners in a hazardous environment. Each of the $k$ miners starts in its own assigned start location $s_i$ in a large maze of size $M \times N$, meaning M columns and N rows. Each miner's goal is to return to its own dumpsite stationed at location $g_i$. Along the way the miners must gather all chucks of Strontium 90 (think Pacman dots) in the maze.
 
 At each time step, all $k$ miners move one unit to any open adjacent square. The only legal actions are Up, Down, Left, or Right. It is illegal for a miner to wait in a square, attempt to move into a wall, or attempt to occupy the same square as another miner. To set a record, the miners must find an optimal collective solution.
 
-\begin{parts}
-    \part[3] Define a minimal state space \textbf{representation} for this problem.
-    \begin{solution}
-        The state can be represented as a tuple:
-        \[ S = (P_1, P_2, \dots, P_k, C) \]
-        where:
-        \begin{itemize}
-            \item $P_i = (x_i, y_i)$ is the coordinate position of the $i$-th miner, for $i = 1 \dots k$.
-            \item $C$ is a boolean vector (or bitmask) of length $Z$ (where $Z$ is the total number of Strontium chunks), indicating whether each chunk has been collected or not.
-        \end{itemize}
-    \end{solution}
+Define a minimal state space \textbf{representation} for this problem.
+\begin{solution}
+    The state can be represented as a tuple:
+    \[ S = (P_1, P_2, \dots, P_k, C) \]
+    where:
+    \begin{itemize}
+        \item $P_i = (x_i, y_i)$ is the coordinate position of the $i$-th miner, for $i = 1 \dots k$.
+        \item $C$ is a boolean vector (or bitmask) of length $Z$ (where $Z$ is the total number of Strontium chunks), indicating whether each chunk has been collected or not.
+    \end{itemize}
+\end{solution}
 
-    \part[3] How large is the state space?
-    \begin{solution}
-        Let $M \times N$ be the size of the grid, $k$ be the number of miners, and $Z$ be the number of Strontium chunks.
-        \begin{itemize}
-            \item There are $(MN)$ possible positions for each miner. For $k$ miners, there are $(MN)^k$ position configurations.
-            \item There are $2^Z$ possible states for the chunks (collected/uncollected).
-        \end{itemize}
-        Total state space size: $O((MN)^k \cdot 2^Z)$.
-    \end{solution}
-\end{parts}
+\question[3]
+Refer to Question 1. How large is the state space?
+\begin{solution}
+    Let $M \times N$ be the size of the grid, $k$ be the number of miners, and $Z$ be the number of Strontium chunks.
+    \begin{itemize}
+        \item There are $(MN)$ possible positions for each miner. For $k$ miners, there are $(MN)^k$ position configurations.
+        \item There are $2^Z$ possible states for the chunks (collected/uncollected).
+    \end{itemize}
+    Total state space size: $O((MN)^k \cdot 2^Z)$.
+\end{solution}
 
-\question
+\question[3]
 Consider the search graph shown below. S is the start state and G is the goal state. All edges are bidirectional.
 
 \begin{center}
     \includegraphics[width=3.5in,alt={Search graph with nodes S (start, h=9), B (h=7), C (h=10), D (h=7), E (h=1), F (h=1), and G (goal, h=0). Edges: S-B (2), S-C (1), S-D (10), B-E (7), C-G (15), E-F (1), E-G (2), F-G (3). All edges are bidirectional.}]{media/image1.jpeg}
 \end{center}
 
-For each of the following search strategies, give the path that would be returned, or write none if no path will be returned. If there are any ties, assume alphabetical tiebreaking---nodes for states earlier in the alphabet are expanded first in the case of ties.
+For the following search strategy, give the path that would be returned, or write none if no path will be returned. If there are any ties, assume alphabetical tiebreaking---nodes for states earlier in the alphabet are expanded first in the case of ties.
 
-\begin{parts}
-    \part[3] Depth-first graph search
-    \begin{solution}
-        Path: $S \to B \to E \to F \to G$ \\
-        \textbf{Explanation:} DFS explores as deep as possible before backtracking. From S, B is expanded first (alphabetical tiebreaking). From B, E is the only unvisited neighbor. From E, F is expanded before G (alphabetical). From F, G is reached (goal found).
-    \end{solution}
+Depth-first graph search
+\begin{solution}
+    Path: $S \to B \to E \to F \to G$ \\
+    \textbf{Explanation:} DFS explores as deep as possible before backtracking. From S, B is expanded first (alphabetical tiebreaking). From B, E is the only unvisited neighbor. From E, F is expanded before G (alphabetical). From F, G is reached (goal found).
+\end{solution}
 
-    \part[3] Breadth-first graph search
-    \begin{solution}
-        Path: $S \to C \to G$ \\
-        \textbf{Explanation:} BFS explores level by level. Level 0: S. Level 1: B (cost 2), C (cost 1), D (cost 10). C is expanded first (alphabetical tiebreaking). From C, G is reached directly (goal found). Total cost: 1 + 15 = 16.
-    \end{solution}
+\question[3]
+Refer to the figure in Question 3. Breadth-first graph search
+\begin{solution}
+    Path: $S \to C \to G$ \\
+    \textbf{Explanation:} BFS explores level by level. Level 0: S. Level 1: B (cost 2), C (cost 1), D (cost 10). C is expanded first (alphabetical tiebreaking). From C, G is reached directly (goal found). Total cost: 1 + 15 = 16.
+\end{solution}
 
-    \part[3] Uniform cost graph search
-    \begin{solution}
-        Path: $S \to B \to E \to G$ \\
-        \textbf{Explanation:} UCS expands nodes by path cost $g(n)$. Frontier: S (g=0). Expand S: add B (g=2), C (g=1), D (g=10). Expand C: add G (g=16). Expand B: add E (g=9). Expand E: add F (g=10), G (g=11). G found via E with cost 11, which is less than 16, so path $S \to B \to E \to G$ is returned. Total cost: 2 + 7 + 2 = 11.
-    \end{solution}
+\question[3]
+Refer to the figure in Question 3. Uniform cost graph search
+\begin{solution}
+    Path: $S \to B \to E \to G$ \\
+    \textbf{Explanation:} UCS expands nodes by path cost $g(n)$. Frontier: S (g=0). Expand S: add B (g=2), C (g=1), D (g=10). Expand C: add G (g=16). Expand B: add E (g=9). Expand E: add F (g=10), G (g=11). G found via E with cost 11, which is less than 16, so path $S \to B \to E \to G$ is returned. Total cost: 2 + 7 + 2 = 11.
+\end{solution}
 
-    \part[3] Greedy graph search
-    \begin{solution}
-        Path: $S \to B \to E \to G$ \\
-        \textbf{Explanation:} Greedy expands the node with smallest heuristic $h(n)$. From S: B (h=7), C (h=10), D (h=7). B is expanded first (alphabetical tiebreaking). From B: E (h=1). From E: F (h=1), G (h=0). G has the smallest heuristic, so it is expanded and goal is found. Path: $S \to B \to E \to G$.
-    \end{solution}
+\question[3]
+Refer to the figure in Question 3. Greedy graph search
+\begin{solution}
+    Path: $S \to B \to E \to G$ \\
+    \textbf{Explanation:} Greedy expands the node with smallest heuristic $h(n)$. From S: B (h=7), C (h=10), D (h=7). B is expanded first (alphabetical tiebreaking). From B: E (h=1). From E: F (h=1), G (h=0). G has the smallest heuristic, so it is expanded and goal is found. Path: $S \to B \to E \to G$.
+\end{solution}
 
-    \part[3] A* graph search
-    \begin{solution}
-        Path: $S \to B \to E \to G$ \\
-        \textbf{Explanation:} A* expands by $f(n) = g(n) + h(n)$. Initial: S (f=0+9=9). Expand S: B (f=2+7=9), C (f=1+10=11), D (f=10+7=17). Expand B (f=9): E (f=9+1=10). Expand E (f=10): F (f=10+1=11), G (f=11+0=11). Expand G (f=11): goal found. Path: $S \to B \to E \to G$. Total cost: 11.
-    \end{solution}
-\end{parts}
+\question[3]
+Refer to the figure in Question 3. A* graph search
+\begin{solution}
+    Path: $S \to B \to E \to G$ \\
+    \textbf{Explanation:} A* expands by $f(n) = g(n) + h(n)$. Initial: S (f=0+9=9). Expand S: B (f=2+7=9), C (f=1+10=11), D (f=10+7=17). Expand B (f=9): E (f=9+1=10). Expand E (f=10): F (f=10+1=11), G (f=11+0=11). Expand G (f=11): goal found. Path: $S \to B \to E \to G$. Total cost: 11.
+\end{solution}
 
 \question[3]
 List the major characteristics of each search in the table below.

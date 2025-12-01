@@ -1,0 +1,186 @@
+\DocumentMetadata{testphase=phase-III}
+% Toggle solutions: comment out \printanswers to hide solutions and produce a student version.
+\documentclass[11pt,addpoints]{exam}
+
+% --- Packages ---
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usepackage{tcolorbox}
+
+% PDF Accessibility: Enable tagged PDF for ADA compliance
+\usepackage{hyperref}
+\hypersetup{
+    pdftitle={CS 6460 Homework 4},
+    pdfauthor={CS 6460},
+    colorlinks=false,
+    pdfborder={0 0 0},
+    pdfstartview={FitH},
+    unicode=true
+}
+
+% Set document language for accessibility
+\usepackage[english]{babel}
+
+% --- Header/Footer ---
+\pointsinrightmargin
+\bracketedpoints
+%% \printanswers % Comment this line to hide solutions
+
+% Fix tagpdf structure issues when solutions are hidden
+\ifprintanswers
+\else
+  \usepackage{etoolbox}
+  % Disable automatic paragraph tagging inside solution environments
+  \AtBeginEnvironment{solution}{\tagpdfsetup{para/tag=false}}
+\fi
+
+% Conditional header based on whether solutions are shown
+\ifprintanswers
+  \header{CS 6460: Artificial Intelligence}{Key}{Fall 2025}
+\else
+  \header{CS 6460: Artificial Intelligence}{ }{Fall 2025}
+\fi
+\footer{}{}{\thepage}
+
+\begin{document}
+
+\begin{center}
+  \tagstructbegin{tag=H1}
+  \tagmcbegin{tag=H1}
+  {\Large \textbf{Homework 4}}\\[6pt]
+  \tagmcend
+  \tagstructend
+\end{center}
+\vspace{1em}
+
+\begin{tcolorbox}[colback=gray!10, colframe=gray!50!black, title=\textbf{Instructions}]
+  \textit{Points: Please see the points for each problem.}\\
+  \textit{Submission: Submit completed homework as a PDF file. Handwritten work or photos of handwritten work must be neat and legible.}
+\end{tcolorbox}
+
+\vspace{0.5em}
+
+\begin{tcolorbox}[colback=white, colframe=black, title=\textbf{Points Summary}]
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+\textbf{Question Number} & \textbf{Points Possible} & \textbf{Points Earned} \\
+\midrule
+1 & 4 & \rule{1.5cm}{0.4pt} \\
+2 & 3 & \rule{1.5cm}{0.4pt} \\
+3 & 3 & \rule{1.5cm}{0.4pt} \\
+\midrule
+\textbf{Total} & \textbf{10} & \rule{1.5cm}{0.4pt} \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{tcolorbox}
+
+\vspace{0.5em}
+
+% ============================
+
+Consider a Markov Model with a binary state $X_t \in \{0,1\}$. The transition probabilities are given as follows:
+
+\begin{center}
+\begin{tabular}{cc|c}
+\toprule
+$X_t$ & $X_{t+1}$ & $P(X_{t+1} \mid X_t)$ \\
+\midrule
+0 & 0 & 0.9 \\
+0 & 1 & 0.1 \\
+1 & 0 & 0.5 \\
+1 & 1 & 0.5 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{questions}
+
+  \question[4] The prior belief distribution over the initial state $X_0$ is uniform: $P(X_0 = 1) = P(X_0 = 0) = 0.5$.
+  After one timestep, what is the new belief distribution $P(X_1)$?
+  
+  \begin{solution}
+    \textbf{Answer:} $P(X_1=0) = 0.7, P(X_1=1) = 0.3$.
+    
+    Using the law of total probability:
+    \[ P(X_1=x) = \sum_{x_0 \in \{0,1\}} P(X_1=x \mid X_0=x_0) P(X_0=x_0) \]
+    Given $P(X_0=0) = 0.5$ and $P(X_0=1) = 0.5$:
+    \begin{align*}
+    P(X_1=0) &= P(X_1=0 \mid X_0=0)P(X_0=0) + P(X_1=0 \mid X_0=1)P(X_0=1) \\
+             &= 0.9(0.5) + 0.5(0.5) \\
+             &= 0.45 + 0.25 = 0.7
+    \end{align*}
+    Since probabilities sum to 1, $P(X_1=1) = 1 - 0.7 = 0.3$.
+  \end{solution}
+
+  \uplevel{
+    \vspace{1em}
+    Now, we incorporate sensor readings. The sensor model is parameterized by a number $\beta \in [0, 1]$:
+
+    \begin{center}
+    \begin{tabular}{cc|c}
+    \toprule
+    $X_t$ & $E_t$ & $P(E_t \mid X_t)$ \\
+    \midrule
+    0 & 0 & $\beta$ \\
+    0 & 1 & $1 - \beta$ \\
+    1 & 0 & $1 - \beta$ \\
+    1 & 1 & $\beta$ \\
+    \bottomrule
+    \end{tabular}
+    \end{center}
+  }
+
+  \question[3] At $t = 1$, we get the first sensor reading, $E_1 = 0$. Use your answer from Question 1 to compute $P(X_1 = 0 \mid E_1 = 0)$. Leave your answer in terms of $\beta$.
+  \begin{solution}
+    \textbf{Answer:} $\frac{0.7\beta}{0.4\beta + 0.3}$
+    
+    Using Bayes' Rule:
+    \[ P(X_1=0 \mid E_1=0) = \frac{P(E_1=0 \mid X_1=0) P(X_1=0)}{P(E_1=0)} \]
+    
+    From Question 1, $P(X_1=0) = 0.7$ and $P(X_1=1) = 0.3$.
+    From the sensor model:
+    \begin{itemize}
+        \item $P(E_1=0 \mid X_1=0) = \beta$
+        \item $P(E_1=0 \mid X_1=1) = 1 - \beta$
+    \end{itemize}
+    
+    Calculate the denominator (evidence):
+    \begin{align*}
+    P(E_1=0) &= P(E_1=0 \mid X_1=0)P(X_1=0) + P(E_1=0 \mid X_1=1)P(X_1=1) \\
+             &= \beta(0.7) + (1-\beta)(0.3) \\
+             &= 0.7\beta + 0.3 - 0.3\beta = 0.4\beta + 0.3
+    \end{align*}
+    
+    Substitute back into Bayes' Rule:
+    \[ P(X_1=0 \mid E_1=0) = \frac{0.7\beta}{0.4\beta + 0.3} \]
+  \end{solution}
+
+  \question[3] For what range of values of $\beta$ will a sensor reading $E_1 = 0$ increase our belief that $X_1 = 0$? That is, what is the range of $\beta$ for which $P(X_1 = 0 \mid E_1 = 0) > P(X_1 = 0)$?
+  \begin{solution}
+    \textbf{Answer:} $\beta \in (0.5, 1]$
+    
+    We want to find $\beta$ such that:
+    \[ P(X_1 = 0 \mid E_1 = 0) > P(X_1 = 0) \]
+    Using the result from Question 2 and $P(X_1=0)=0.7$:
+    \[ \frac{0.7\beta}{0.4\beta + 0.3} > 0.7 \]
+    
+    Since probabilities and $\beta$ are non-negative, the denominator $0.4\beta + 0.3$ is positive. We can multiply both sides:
+    \begin{align*}
+    0.7\beta &> 0.7(0.4\beta + 0.3) \\
+    \beta &> 0.4\beta + 0.3 \quad \text{(divide by 0.7)} \\
+    0.6\beta &> 0.3 \\
+    \beta &> 0.5
+    \end{align*}
+    
+    Since $\beta$ is a probability, the range is $\beta \in (0.5, 1]$.
+  \end{solution}
+
+\end{questions}
+
+\end{document}
