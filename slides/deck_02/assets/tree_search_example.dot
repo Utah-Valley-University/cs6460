@@ -1,0 +1,50 @@
+digraph TreeSearchExample {
+    rankdir=TB;
+    node [shape=circle, style=filled, fillcolor="#ffffff", color="#2d6a4f", fontname="Arial", fontsize=18, fontcolor="#004b23", width=0.8, height=0.8];
+    edge [color="#1a1a1a", arrowsize=1.0, penwidth=2];
+    
+    // Root
+    s [label="s", fillcolor="#e8f2ea", color="#2d6a4f", penwidth=3];
+    
+    // Level 1
+    sd [label="d"];
+    se [label="e"];
+    sp [label="p"];
+    
+    // Level 2 from d
+    sdb [label="b"];
+    sdc [label="c"];
+    sde [label="e"];
+    
+    // Level 3 from s->d->e
+    sdeh [label="h"];
+    sder [label="r"];
+    
+    // Level 4 from s->d->e->r
+    sderf [label="f"];
+    
+    // Level 5 from s->d->e->r->f
+    sderfc [label="c"];
+    sderfG [label="G", fillcolor="#e8f2ea", color="#2d6a4f", penwidth=3];
+    
+    // Edges
+    // Path s→d→e→r→f→G marked in red
+    s -> sd [color="#ff0000", penwidth=3];
+    s -> se;
+    s -> sp;
+    sd -> sdb;
+    sd -> sdc;
+    sd -> sde [color="#ff0000", penwidth=3];
+    sde -> sdeh;
+    sde -> sder [color="#ff0000", penwidth=3];
+    sder -> sderf [color="#ff0000", penwidth=3];
+    sderf -> sderfc;
+    sderf -> sderfG [color="#ff0000", penwidth=3];
+    
+    // Rank nodes by level
+    {rank=same; sd; se; sp}
+    {rank=same; sdb; sdc; sde}
+    {rank=same; sdeh; sder}
+    {rank=same; sderf}
+    {rank=same; sderfc; sderfG}
+}

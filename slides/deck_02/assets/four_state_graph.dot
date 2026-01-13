@@ -1,0 +1,17 @@
+digraph FourStateGraph {
+    rankdir=LR;
+    node [shape=circle, style=filled, fillcolor="#ffffff", color="#2d6a4f", fontname="Arial", fontsize=24, fontcolor="#004b23", width=1.2, height=1.2];
+    edge [color="#1a1a1a", arrowsize=1.2, penwidth=2];
+    
+    s [label="s", fillcolor="#e8f2ea", color="#2d6a4f", penwidth=3];
+    a [label="a"];
+    b [label="b"];
+    G [label="G", fillcolor="#e8f2ea", color="#2d6a4f", penwidth=3];
+    
+    s -> a;
+    s -> b;
+    a -> b;
+    b -> a;
+    b -> G;
+    a -> G;
+}

@@ -1,0 +1,93 @@
+digraph CostSensitiveSearchTree {
+    rankdir=LR;
+    node [shape=circle, style=filled, fontname="Arial", fontsize=14, penwidth=2];
+    edge [color="#1a1a1a", arrowsize=1.0, penwidth=2, fontname="Arial", fontsize=11];
+    
+    // Cost contours - nodes grouped by cumulative cost from start
+    // Each contour represents nodes that would be explored at the same "cost level" in UCS
+    
+    // Contour 0: cost 0
+    s [label="s\n0", fillcolor="#e8f5e9", color="#2d6a4f", penwidth=3];
+    
+    // Contour 1: cost 1
+    sp [label="p\n1", fillcolor="#c8e6c9", color="#40916c"];
+    
+    // Contour 2: cost 3
+    sd [label="d\n3", fillcolor="#a5d6a7", color="#52b788"];
+    
+    // Contour 3: cost 4
+    sdb [label="b\n4", fillcolor="#81c784", color="#66bb6a"];
+    
+    // Contour 4: cost 6
+    sdba [label="a\n6", fillcolor="#66bb6a", color="#81c784"];
+    
+    // Contour 5: cost 9
+    se [label="e\n9", fillcolor="#4caf50", color="#a5d6a7"];
+    
+    // Contour 6: cost 11
+    sdc [label="c\n11", fillcolor="#43a047", color="#c8e6c9"];
+    ser [label="r\n11", fillcolor="#43a047", color="#c8e6c9"];
+    
+    // Contour 7: cost 13
+    sdc_a [label="a\n13", fillcolor="#388e3c", color="#e8f5e9"];
+    serf [label="f\n13", fillcolor="#388e3c", color="#e8f5e9"];
+    
+    // Contour 8: cost 15 (GOAL reached)
+    serfG [label="G\n15", fillcolor="#2d6a4f", color="#004b23", penwidth=3, fontcolor="#ffffff"];
+    
+    // Contour 9: cost 16
+    spq [label="q\n16", fillcolor="#1b5e20", color="#081c15", fontcolor="#ffffff"];
+    serfc [label="c\n16", fillcolor="#1b5e20", color="#081c15", fontcolor="#ffffff"];
+    
+    // Contour 10: cost 17
+    seh [label="h\n17", fillcolor="#0d2818", color="#000000", fontcolor="#ffffff"];
+    
+    // Contour 11: cost 21
+    sehp [label="p\n21", fillcolor="#000000", color="#000000", fontcolor="#ffffff"];
+    sehq [label="q\n21", fillcolor="#000000", color="#000000", fontcolor="#ffffff"];
+    
+    // Edges with costs
+    s -> sp [label="1"];
+    s -> sd [label="3"];
+    s -> se [label="9"];
+    
+    sp -> spq [label="15"];
+    
+    sd -> sdb [label="1"];
+    sd -> sdc [label="8"];
+    
+    sdb -> sdba [label="2"];
+    
+    sdc -> sdc_a [label="2"];
+    
+    se -> ser [label="2"];
+    se -> seh [label="8"];
+    
+    ser -> serf [label="2"];
+    
+    serf -> serfG [label="2", color="#d32f2f", penwidth=3];  // Highlight goal path
+    serf -> serfc [label="3"];
+    
+    seh -> sehp [label="4"];
+    seh -> sehq [label="4"];
+    
+    // Rank nodes by cost contour (same cost = same rank for horizontal alignment)
+    {rank=same; s}
+    {rank=same; sp}
+    {rank=same; sd}
+    {rank=same; sdb}
+    {rank=same; sdba}
+    {rank=same; se}
+    {rank=same; sdc; ser}
+    {rank=same; sdc_a; serf}
+    {rank=same; serfG}
+    {rank=same; spq; serfc}
+    {rank=same; seh}
+    {rank=same; sehp; sehq}
+    
+    // Add title/comment
+    labelloc="t";
+    label="Search Tree with Cost Contours\n(Darker shades = higher cost)";
+    fontname="Arial";
+    fontsize=16;
+}

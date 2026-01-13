@@ -1,0 +1,38 @@
+digraph CostSensitiveGraph {
+    rankdir=LR; // Left to Right layout
+    node [shape=circle, style=filled, fillcolor="#ffffff", color="#2d6a4f", fontname="Arial", fontsize=20, fontcolor="#004b23", penwidth=2];
+    edge [color="#1a1a1a", arrowsize=1.2, penwidth=2, fontname="Arial", fontsize=14, fontcolor="#000000"];
+
+    // Start and goal nodes with special styling
+    s [label="s", fillcolor="#e8f2ea", color="#2d6a4f", penwidth=3];
+    G [label="G", fillcolor="#e8f2ea", color="#2d6a4f", penwidth=3];
+
+    // Other nodes
+    a [label="a"];
+    b [label="b"];
+    c [label="c"];
+    d [label="d"];
+    e [label="e"];
+    f [label="f"];
+    h [label="h"];
+    p [label="p"];
+    q [label="q"];
+    r [label="r"];
+
+    // Weighted edges
+    s -> d [label="3"];
+    s -> e [label="9"];
+    s -> p [label="1"];
+    b -> a [label="2"];
+    c -> a [label="2"];
+    d -> b [label="1"];
+    d -> c [label="8"];
+    e -> h [label="8"];
+    e -> r [label="2"];
+    f -> c [label="3"];
+    f -> G [label="2"];
+    h -> p [label="4"];
+    h -> q [label="4"];
+    p -> q [label="15"];
+    r -> f [label="2"];
+}

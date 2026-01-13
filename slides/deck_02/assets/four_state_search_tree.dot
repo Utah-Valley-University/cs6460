@@ -1,0 +1,41 @@
+digraph SearchTree {
+    rankdir=TB;
+    node [shape=circle, style=filled, fillcolor="#ffffff", color="#2d6a4f", fontname="Arial", fontsize=20, fontcolor="#004b23", width=1.0, height=1.0];
+    edge [color="#1a1a1a", arrowsize=1.0, penwidth=2];
+    
+    // Level 1: Root
+    s [label="s", fillcolor="#e8f2ea", color="#2d6a4f", penwidth=3];
+    
+    // Level 2
+    sa [label="a"];
+    sb [label="b"];
+    
+    // Level 3
+    sab [label="b"];
+    saG [label="G", fillcolor="#e8f2ea", color="#2d6a4f", penwidth=3];
+    sba [label="a"];
+    sbG [label="G", fillcolor="#e8f2ea", color="#2d6a4f", penwidth=3];
+    
+    // Level 4
+    saba [label="a"];
+    sabG [label="G", fillcolor="#e8f2ea", color="#2d6a4f", penwidth=3];
+    sbaa [label="a"];
+    sbaG [label="G", fillcolor="#e8f2ea", color="#2d6a4f", penwidth=3];
+    
+    // Edges
+    s -> sa [label="s→a"];
+    s -> sb [label="s→b"];
+    sa -> sab [label="a→b"];
+    sa -> saG [label="a→G"];
+    sb -> sba [label="b→a"];
+    sb -> sbG [label="b→G"];
+    sab -> saba [label="b→a"];
+    sab -> sabG [label="b→G"];
+    sba -> sbaa [label="a→b"];
+    sba -> sbaG [label="a→G"];
+    
+    // Rank nodes by level
+    {rank=same; sa; sb}
+    {rank=same; sab; saG; sba; sbG}
+    {rank=same; saba; sabG; sbaa; sbaG}
+}
