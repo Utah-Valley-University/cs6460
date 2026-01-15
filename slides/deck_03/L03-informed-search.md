@@ -303,24 +303,44 @@ Worst-case
 </div>
 
 </div>
+
 ---
 # Video of Demo Contours Greedy (Empty)
 ---
 # Video of Demo Contours Greedy (Pacman Small Maze)
 ---
+
+<center>
+
 # A* Search
-![A_Search](assets/slide13_img01.png)
+
+<img src="assets/slide13_img01.png" alt="A Star Section Image" width="800">
+
+</center>
+
 ---
+
 # A* Search
-- UCS
-- Greedy
-- A*
-![A_Search](assets/slide14_img01.png)
-![A_Search](assets/slide14_img02.png)
-![A_Search](assets/slide14_img03.png)
-![A_Search](assets/slide14_converted01.png)
-![A_Search](assets/slide14_converted02.png)
-![A_Search](assets/slide14_converted03.png)
+
+<div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; align-items: center;">
+
+<div style="text-align: center;">
+<strong>UCS</strong><br>
+<img src="assets/slide14_img01.png" alt="A_Search" width="250">
+</div>
+
+<div style="text-align: center;">
+<strong>Greedy</strong><br>
+<img src="assets/slide14_img02.png" alt="A_Search" width="250">
+</div>
+
+<div style="text-align: center;">
+<strong>A*</strong><br>
+<img src="assets/slide14_img03.png" alt="A_Search" width="250">
+</div>
+
+</div>
+
 ---
 # Combining UCS and Greedy
 - Uniform-cost orders by path cost, or backward cost  g(n)
