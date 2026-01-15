@@ -320,7 +320,7 @@ Worst-case
 
 ---
 
-# A* Search
+# A* Search: Best of Both
 
 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; align-items: center;">
 
