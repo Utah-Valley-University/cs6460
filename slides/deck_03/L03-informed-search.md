@@ -221,43 +221,88 @@ A heuristic is:
 </div>
 
 ---
+
 # Example: Heuristic Function
-- h(x)
-![Example_Heuristic_Function](assets/slide06_img01.wmf)
-![Example_Heuristic_Function](assets/slide06_converted01.png)
+
+<center>
+
+<img src="assets/slide06_img01.png" alt="Example_Heuristic_Function" width="800">
+
+</center>
+
 ---
+
+<center>
+
 # Greedy Search
-![Greedy_Search](assets/slide07_img01.png)
+
+<img src="assets/slide07_img01.png" alt="Greedy_Search" width="700">
+
+</center>
+
 ---
 # Example: Greedy Heuristic Function
-- h(x)
-![Example_Greedy_Heuristic_Function](assets/slide08_img01.wmf)
-![Example_Greedy_Heuristic_Function](assets/slide08_converted01.png)
+
+<center>
+
+<img src="assets/slide06_img01.png" alt="Example_Heuristic_Function" width="800">
+
+</center>
+
 ---
 # Greedy Search
+
+<div class = "two-column">
+
+<div>
+
 - Expand the node that seems closest…
 - What can go wrong?
-![Greedy_Search](assets/slide09_img01.png)
-![Greedy_Search](assets/slide09_img02.wmf)
-![Greedy_Search](assets/slide09_img03.wmf)
-![Greedy_Search](assets/slide09_img04.wmf)
-![Greedy_Search](assets/slide09_img05.png)
-![Greedy_Search](assets/slide09_img06.wmf)
+
+<img src="assets/slide09_img02.png" alt="Example_Heuristic_Function" width="100%">
+
+</div>
+
+<div>
+
+<center>
+<img src="assets/slide09_img03.png" alt="Example_Heuristic_Function" width="280">
+
+</center>
+
+<img src="assets/slide09_img05.png" alt="Example_Heuristic_Function" width="450">
+
+</div>
+
+</div>
+
 ---
+
 # Greedy Search
+
+<div class = "two-column" >
+
+<div>
+
 - Strategy: expand a node that you think is closest to a goal state
-- Heuristic: estimate of distance to nearest goal for each state
-- A common case:
+   - Heuristic: estimate of distance to nearest goal for each state
+
+A common case
 - Best-first takes you straight to the (wrong) goal
-- Worst-case: like a badly-guided DFS
-- …
-- b
-- …
-- b
-![Greedy_Search](assets/slide10_converted01.png)
-![Greedy_Search](assets/slide10_converted02.png)
-![Greedy_Search](assets/slide10_converted03.png)
-![Greedy_Search](assets/slide10_converted04.png)
+
+
+Worst-case  
+- behaves like a badly-guided DFS
+
+</div>
+
+<div style="text-align: right;">
+
+<img src="assets/slide10_img01.png" alt="Greedy_Search" width="350">
+
+</div>
+
+</div>
 ---
 # Video of Demo Contours Greedy (Empty)
 ---
